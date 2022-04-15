@@ -2,7 +2,7 @@
 export VAULTPATH=${0:a:h}
 export ANSIBLE_VAULT_PASSWORD_FILE=${VAULTPATH}/.vault.dev
 
-export ANSIBLE_INVENTORY=${VAULTPATH}/inventories/dev
+export ANSIBLE_INVENTORY=${VAULTPATH}/inventory
 export ANSIBLE_CONFIG=${VAULTPATH}/ansible.dev.cfg
 
 if (( ${+VAULTPATH} )); then

@@ -1,9 +1,9 @@
 #!/bin/bash
 export VAULTPATH=${0:a:h}
-export ANSIBLE_VAULT_PASSWORD_FILE=${VAULTPATH}/.vault.peos
+export ANSIBLE_VAULT_PASSWORD_FILE=${VAULTPATH}/.vault.prod
 
-export ANSIBLE_INVENTORY=${VAULTPATH}/inventories/peos
-export ANSIBLE_CONFIG=${VAULTPATH}/ansible.peos.cfg
+export ANSIBLE_INVENTORY=${VAULTPATH}/inventory
+export ANSIBLE_CONFIG=${VAULTPATH}/ansible.prod.cfg
 
 if (( ${+VAULTPATH} )); then
 echo "Ansible Working Path: $VAULTPATH"
