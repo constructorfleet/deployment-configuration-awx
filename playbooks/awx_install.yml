@@ -1,0 +1,10 @@
+---
+
+- name: Install AWX
+  gather_facts: true
+  hosts:
+    - awx
+  vars:
+    docker_compose_projects: "{{ awx_compose_project }}"
+  roles:
+    - name: docker
