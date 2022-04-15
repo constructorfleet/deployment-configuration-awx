@@ -1,6 +1,6 @@
 ---
 name: Bug Report
-about: Create a report to help AWX-Project-Template GitHub Template to improve
+about: Create a report to help deployment-configuration-awx to improve
 title: "bug: "
 labels: "bug"
 assignees: ""

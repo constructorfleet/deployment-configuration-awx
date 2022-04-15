@@ -1,3 +1,3 @@
-# AWX-Project-Template
+# Deployment and Configuration AWX Project
 
-Template for scaffolding new Ansible AWS projects
+AWX project for provisioning, deploying and configuring systems.

@@ -1,6 +1,6 @@
 ---
 blank_issues_enabled: false
 contact_links:
-  - name: ConstructorFleet AWX Project Template Community Support
-    url: https://github.com/constructorfleet/AWX-Project-Template/discussions
+  - name: ConstructorFleet deployment-configuration-awx Community Support
+    url: https://github.com/constructorfleet/deployment-configuration-awx/discussions
     about: Please ask and answer questions here.
