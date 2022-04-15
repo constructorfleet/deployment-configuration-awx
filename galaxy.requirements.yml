@@ -5,4 +5,3 @@ roles: []
 collections:
   - name: theforeman.operations
     version: 1.0.2
-  -
