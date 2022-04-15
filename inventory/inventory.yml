@@ -7,4 +7,7 @@ all:
     prod:
     foreman:
       hosts:
-        testvm1.home.prettybaked.com
+        testvm1.home.prettybaked.com:
+    awx:
+      hosts:
+        testvm1.home.prettybaked.com:
