@@ -1,0 +1,6 @@
+all:
+  children:
+    foreman:
+      hosts:
+        test-foreman:
+          ansible_ssh_host: 10.0.10.141
