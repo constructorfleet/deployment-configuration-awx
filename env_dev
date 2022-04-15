@@ -1,0 +1,19 @@
+#!/bin/bash
+export VAULTPATH=${0:a:h}
+export ANSIBLE_VAULT_PASSWORD_FILE=${VAULTPATH}/.vault.dev
+
+export ANSIBLE_INVENTORY=${VAULTPATH}/inventories/dev
+export ANSIBLE_CONFIG=${VAULTPATH}/ansible.dev.cfg
+
+if (( ${+VAULTPATH} )); then
+echo "Ansible Working Path: $VAULTPATH"
+fi
+if (( ${+ANSIBLE_VAULT_PASSWORD_FILE} )); then
+echo "Vault PW File: $ANSIBLE_VAULT_PASSWORD_FILE"
+fi
+if (( ${+ANSIBLE_INVENTORY} )); then
+echo "Ansible Inventory File: $ANSIBLE_INVENTORY"
+fi
+if (( ${+ANSIBLE_CONFIG} )); then
+echo "Ansible Configuration File: $ANSIBLE_CONFIG"
+fi
