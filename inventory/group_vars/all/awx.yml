@@ -1,5 +1,13 @@
 ---
 
+awx_admin_password: !vault |
+          $ANSIBLE_VAULT;1.1;AES256
+          65356234386564633839613038336338343263646339323733653237383933353366363965373438
+          6133316230636136313736393833303963343565663233300a353738363532373665633234306337
+          63366263663261303939646331313561386630356437653862633839323035393338643031643964
+          6164663066626664390a326136633235393766326638333765323434663765376634386635373638
+          3732
+
 awx_task_container_name: awx-task
 awx_task_container_hostname: awx
 awx_web_container_name: awx-web
@@ -17,22 +25,6 @@ awx_host_port: 8080
 awx_web_url: "http://{{ ansible_default_ipv4.address }}:{{ awx_host_port }}"
 awx_project_data_dir: /var/lib/awx
 awx_postgres_data_dir: /var/lib/pgawx
-
-awx_rabbitmq_erlang_cookie: !vault |
-          $ANSIBLE_VAULT;1.1;AES256
-          61323532633662363035376530386639333561386537333532323539323534393836663265633439
-          3261636439336666616433613862633931653438383565310a326165633339343262373037346163
-          38366263303932623063613464363832353730396534613136323135326466333762356433666130
-          3964363130306338350a336431373962636431373137633030623339323263633664366437653762
-          6662
-awx_rabbitmq_password: !vault |
-          $ANSIBLE_VAULT;1.1;AES256
-          30633061626665326437343733353535343465393738323065396338343861313463366335653764
-          3738373230313035633861316134373461633437343163380a313765656332303863383937643633
-          64663835613962653938343638386631383536383162363639636464653733373966313832333733
-          3039326161376637640a653332323562623039333132613564333332383064383831653731623866
-          63373665313339316461306537666434313063656638313834313038353862326535
-
 
 awx_pg_password: !vault |
           $ANSIBLE_VAULT;1.1;AES256
@@ -72,33 +64,17 @@ awx_admin_passward: !vault |
           6635343364353236330a656334353035363931666630346539653765313864353936646266366463
           6136
 
-
-awx_rabbitmq_version: "3.7.4"
-awx_rabbitmq_image: "ansible/awx_rabbitmq:{{ awx_rabbitmq_version }}"
-awx_rabbitmq_default_vhost: "awx"
-awx_rabbitmq_host: "rabbitmq"
-awx_rabbitmq_port: "5672"
-awx_rabbitmq_user: "guest"
-
 awx_postgresql_version: "10"
 awx_postgresql_image: "postgres:{{ awx_postgresql_version }}"
-
-
-awx_memcached_image: "memcached"
-awx_memcached_version: "alpine"
-awx_memcached_host: "memcached"
-awx_memcached_port: "11211"
 
 awx_dockerhub_base: ansible
 awx_dockerhub_version: 16.0.0
 awx_create_preload_data: True
 
-
 awx_docker_compose_dir: /var/lib/awxcompose
 awx_pg_username: awx
 awx_pg_database: awx
 awx_pg_port: 5432
-
 
 awx_web_hostname: awxweb
 awx_task_hostname: awx
@@ -122,6 +98,18 @@ awx_compose_project:
               - subnet: 172.3.27.0/24
 
       services:
+        redis:
+          image: redis
+          container_name: awx_redis
+          restart: unless-stopped
+          environment:
+            http_proxy: "{{ http_proxy | default('') }}"
+            https_proxy: "{{ https_proxy | default('') }}"
+            no_proxy: "{{ no_proxy | default('') }}"
+          command: ["/usr/local/etc/redis/redis.conf"]
+          volumes:
+            - "{{ awx_docker_compose_dir }}/redis.conf:/usr/local/etc/redis/redis.conf:ro"
+            - "{{ awx_docker_compose_dir }}/redis_socket:/var/run/redis/:rw"
         postgres:
           container_name: awx-postgres
           image: postgres:10
@@ -146,86 +134,11 @@ awx_compose_project:
             options:
               tag: awx-postgres
 
-        rabbitmq:
-          container_name: awx-rabbitmq
-          image: "{{ awx_rabbitmq_image }}"
-          hostname: awx-rabbitmq
-          volumes:
-            - '/etc/localtime:/etc/localtime:ro'
-          networks:
-            awx:
-              aliases:
-                - rabbitmq
-                - awx_rabbitmq
-          environment:
-            RABBITMQ_DEFAULT_VHOST: "{{ awx_rabbitmq_default_vhost }}"
-            RABBITMQ_DEFAULT_USER: "{{ awx_rabbitmq_user }}"
-            RABBITMQ_DEFAULT_PASS: "{{ awx_rabbitmq_password | quote }}"
-            RABBITMQ_ERLANG_COOKIE: "{{ awx_rabbitmq_erlang_cookie }}"
-            http_proxy: "{{ http_proxy | default('') }}"
-            https_proxy: "{{ https_proxy | default('') }}"
-            no_proxy: "{{ no_proxy | default('') }}"
-          logging:
-            <<  : *default-logging
-            options:
-              tag: awx-rabbitmq
-
-        memcached:
-          container_name: awx-memcached
-          image: "{{ awx_memcached_image }}:{{ awx_memcached_version }}"
-          hostname: awx-memcached
-          networks:
-            awx:
-              aliases:
-                - awx_memcached
-                - memcached
-          volumes:
-            - '/etc/localtime:/etc/localtime:ro'
-          environment:
-            http_proxy: "{{ http_proxy | default('') }}"
-            https_proxy: "{{ https_proxy | default('') }}"
-            no_proxy: "{{ no_proxy | default('') }}"
-          logging:
-            << : *default-logging
-            options:
-              tag: awx-memcached
-
-        task:
-          container_name: awx-task
-          image: "{{ awx_dockerhub_base }}/awx:{{ awx_dockerhub_version }}"
-          hostname: awxtask
-          depends_on:
-            - memcached
-            - rabbitmq
-            - postgres
-          networks:
-            awx:
-              aliases:
-                - task
-                - awx_task
-                - awx
-          user: root
-          volumes:
-            - "{{ awx_docker_compose_dir }}/SECRET_KEY:/etc/tower/SECRET_KEY"
-            - "{{ awx_docker_compose_dir }}/environment.sh:/etc/tower/conf.d/environment.sh"
-            - "{{ awx_docker_compose_dir }}/credentials.py:/etc/tower/conf.d/credentials.py"
-            - "{{ awx_project_data_dir }}:/var/lib/awx/projects:rw"
-            - '/etc/localtime:/etc/localtime:ro'
-          environment:
-            http_proxy: "{{ http_proxy | default('') }}"
-            https_proxy: "{{ https_proxy | default('') }}"
-            no_proxy: "{{ no_proxy | default('') }}"
-          logging:
-            << : *default-logging
-            options:
-              tag: awx-task
-
         web:
           container_name: awx-web
           image: "{{ awx_dockerhub_base }}/awx:{{ awx_dockerhub_version }}"
           depends_on:
-            - memcached
-            - rabbitmq
+            - redis
             - postgres
           ports:
             - "{{ awx_host_port }}:8052"
@@ -242,6 +155,40 @@ awx_compose_project:
             - "{{ awx_docker_compose_dir }}/environment.sh:/etc/tower/conf.d/environment.sh"
             - "{{ awx_docker_compose_dir }}/credentials.py:/etc/tower/conf.d/credentials.py"
             - "{{ awx_docker_compose_dir }}/nginx.conf:/etc/nginx/nginx.conf:ro"
+            - "{{ awx_docker_compose_dir }}/redis_socket:/var/run/redis/:rw"
+            - "{{ awx_project_data_dir }}:/var/lib/awx/projects:rw"
+            - '/etc/localtime:/etc/localtime:ro'
+          environment:
+            http_proxy: "{{ http_proxy | default('') }}"
+            https_proxy: "{{ https_proxy | default('') }}"
+            no_proxy: "{{ no_proxy | default('') }}"
+          logging:
+            << : *default-logging
+            options:
+              tag: awx-web
+
+        task:
+          container_name: awx-task
+          image: "{{ awx_dockerhub_base }}/awx:{{ awx_dockerhub_version }}"
+          depends_on:
+            - redis
+            - postgres
+            - web
+          networks:
+            awx:
+              aliases:
+                - task
+                - awxtask
+                - awx_task
+          hostname: awx-task
+          user: root
+          command: /usr/bin/launch_awx_task.sh
+          volumes:
+            - "{{ awx_docker_compose_dir }}/SECRET_KEY:/etc/tower/SECRET_KEY"
+            - "{{ awx_docker_compose_dir }}/environment.sh:/etc/tower/conf.d/environment.sh"
+            - "{{ awx_docker_compose_dir }}/credentials.py:/etc/tower/conf.d/credentials.py"
+            - "{{ awx_docker_compose_dir }}/nginx.conf:/etc/nginx/nginx.conf:ro"
+            - "{{ awx_docker_compose_dir }}/redis_socket:/var/run/redis/:rw"
             - "{{ awx_project_data_dir }}:/var/lib/awx/projects:rw"
             - '/etc/localtime:/etc/localtime:ro'
           environment:
