@@ -1,5 +1,38 @@
 ---
 
+- name: AWX Prerequisites
+  gather_facts: true
+  hosts:
+    - awx
+  vars:
+    broadcast_websocket_secret: '{{ awx_secret_key }}'
+  tasks:
+    - name: Create {{ awx_docker_compose_dir }} directory
+      ansible.builtin.file:
+        path: "{{ awx_docker_compose_dir }}"
+        state: directory
+
+    - name: Create Redis socket directory
+      ansible.builtin.file:
+        path: "{{ awx_docker_compose_dir }}/redis_socket"
+        state: directory
+        mode: 0777
+
+    - name: Create Docker Compose Configuration
+      ansible.builtin.template:
+        src: "awx/{{ item }}.j2"
+        dest: "{{ awx_docker_compose_dir }}/{{ item }}"
+      loop:
+        - environment.sh
+        - credentials.py
+        - nginx.conf
+        - redis.conf
+
+    - name: Render SECRET_KEY file
+      copy:
+        content: "{{ awx_secret_key }}"
+        dest: "{{ awx_docker_compose_dir }}/SECRET_KEY"
+
 - name: Install AWX
   gather_facts: true
   hosts:
