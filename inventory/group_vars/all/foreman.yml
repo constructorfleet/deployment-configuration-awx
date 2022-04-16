@@ -3,7 +3,8 @@
 foreman_repositories_version: "3.2"
 foreman_installer_scenario: foreman
 foreman_puppet_repositories_version: 7
-
+foreman_server_url: 'http://testvm1.home.prettybaked.com:8080'
+foreman_validate_certs: false
 foreman_username: !vault |
           $ANSIBLE_VAULT;1.1;AES256
           64386661616265363933633363626539653839313038356135376662393937636633303032366433
