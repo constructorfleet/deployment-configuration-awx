@@ -1,0 +1,8 @@
+DATABASE_USER={{ awx_pg_username }}
+DATABASE_NAME={{ awx_pg_database }}
+DATABASE_HOST={{ awx_pg_hostname|default('postgres') }}
+DATABASE_PORT={{ awx_pg_port|default('5432') }}
+DATABASE_PASSWORD={{ awx_pg_password|default('awxpass') }}
+DATABASE_ADMIN_PASSWORD={{ awx_pg_admin_password|default('postgrespass') }}
+AWX_ADMIN_USER={{ awx_admin_user }}
+AWX_ADMIN_PASSWORD={{ awx_admin_password | quote }}
