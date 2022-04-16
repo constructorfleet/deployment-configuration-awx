@@ -11,3 +11,7 @@ all:
     awx:
       hosts:
         testvm1.home.prettybaked.com:
+    buildservices:
+      children:
+        foreman:
+        awx:
