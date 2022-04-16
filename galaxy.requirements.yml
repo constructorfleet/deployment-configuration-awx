@@ -8,3 +8,5 @@ roles:
 collections:
   - name: theforeman.operations
     version: 1.0.2
+  - name: theforeman.foreman
+    version: 3.2.0
