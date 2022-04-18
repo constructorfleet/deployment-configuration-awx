@@ -1,6 +1,6 @@
-#!/bin/bash
+#!/usr/bin/env bash
 BASE_DIR=$(dirname "$(realpath "$0")")
-source "$BASE_DIR/.print_utils.sh"
+source .print_utils.sh
 
 function verify_venv() {
   writeln "$(style_text "Verifying virtualenv is present..." $BLUE $BOLD)"
@@ -29,6 +29,16 @@ function setup_git_hooks() {
   writeln "$(style_text "Git hooks setup!" $GREEN $BOLD)"
 }
 
+function setup_vault_password() {
+  if [[ ! -f "$ANSIBLE_VAULT_PASSWORD_FILE" ]]; then
+    write "$(style_text "Enter Vault Password: " $BLUE $BOLD)";
+    read -s vault_password;
+    echo "$ANSIBLE_VAULT_PASSWORD_FILE";
+    echo "$vault_password" > "$ANSIBLE_VAULT_PASSWORD_FILE";
+  fi
+}
+
 verify_venv
 install_pip_requirements
 setup_git_hooks
+setup_vault_password
