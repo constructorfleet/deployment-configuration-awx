@@ -1,6 +1,6 @@
 #!/bin/bash
 
-source .helper_scripts/print_utils.sh
+source .print_utils.sh
 
 write "$(style_text "Enter Variable Name: " $BLUE $BOLD)"
 read var_name

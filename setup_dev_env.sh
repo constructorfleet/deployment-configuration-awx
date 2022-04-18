@@ -1,6 +1,6 @@
 #!/bin/bash
 BASE_DIR=$(dirname "$(realpath "$0")")
-source "$BASE_DIR/.helper_scripts/print_utils.sh"
+source "$BASE_DIR/.print_utils.sh"
 
 function verify_venv() {
   writeln "$(style_text "Verifying virtualenv is present..." $BLUE $BOLD)"

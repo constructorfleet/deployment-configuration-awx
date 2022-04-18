@@ -1,5 +1,5 @@
 #!/bin/bash
-source "$(pwd)/.helper_scripts/print_utils.sh"
+source "$(pwd)/.print_utils.sh"
 
 if [[ ! -d venv ]]; then
   writeln "$(style_text "No venv detected, please run ./setup_dev_env.sh first" $RED $BOLD)"
