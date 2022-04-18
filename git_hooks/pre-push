@@ -22,7 +22,7 @@ rc=$?
 if [[ $rc -ne 0 ]]; then
   exit 4
 fi
-./ci_test.sh
+./run_pytest.sh
 rc=$?
 if [[ $rc -ne 0 ]]; then
   exit 5
