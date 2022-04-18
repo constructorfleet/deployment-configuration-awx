@@ -1,0 +1,23 @@
+---
+
+foreman_organization: Default Organization
+foreman_location: Default Location
+
+foreman_settings:
+#  - name: host_owner
+#    value: '{{ foreman_admin_id }}'
+#  - name: ansible_ssh_private_key_file
+#    value: '{{ foreman_proxy_user_homedir }}/.ssh/id_rsa'
+  - name: entries_per_page
+    value: 20
+  - name: use_shortname_for_vms
+    value: true
+  - name: idle_timeout
+    value: 480
+  - name: destroy_vm_on_host_delete
+    value: true
+
+foreman_organizations:
+  - name: '{{ foreman_organization }}'
+    locations:
+      - name: '{{ foreman_location}}'
