@@ -1,29 +1,24 @@
 #!/bin/bash
-source "$(pwd)/.helper_scripts/print_utils.sh"
+source "$(pwd)/.print_utils.sh"
 
 if [[ ! -d venv ]]; then
   writeln "$(style_text "No venv detected, please setup a Python 3.6 virtual env first" $RED $BOLD)"
   exit 1
 fi
 
+writeln "$(style_text "Running linter..." $BLUE $BOLD)"
 source venv/bin/activate
-pip install ansible-lint[community,yamllint]
-rc=$?
-if [[ $rc -ne 0 ]]; then
-  exit 2
-fi
-pip install pytest
-rc=$?
-if [[ $rc -ne 0 ]]; then
-  exit 3
-fi
 ./run_linter.sh
 rc=$?
 if [[ $rc -ne 0 ]]; then
+  writeln "$(style_text "Linter failed: $rc!" $RED $BOLD)"
   exit 4
 fi
+
+writeln "$(style_text "Running tests..." $BLUE $BOLD)"
 ./run_pytest.sh
 rc=$?
-if [[ $rc -ne 0 ]]; then
+if [[ $rc -ne 0 ]] && [[ $rc -ne 5 ]]; then
+  writeln "$(style_text "PyTest failed: $rc!" $RED $BOLD)"
   exit 5
 fi
