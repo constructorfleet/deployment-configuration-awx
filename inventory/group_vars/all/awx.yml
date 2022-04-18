@@ -69,7 +69,7 @@ awx_postgresql_image: "postgres:{{ awx_postgresql_version }}"
 
 awx_dockerhub_base: ansible
 awx_dockerhub_version: 16.0.0
-awx_create_preload_data: True
+awx_create_preload_data: true
 
 awx_docker_compose_dir: /var/lib/awxcompose
 awx_pg_username: awx

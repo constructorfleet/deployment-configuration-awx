@@ -29,7 +29,7 @@
         - redis.conf
 
     - name: Render SECRET_KEY file
-      copy:
+      ansible.builtin.copy:
         content: "{{ awx_secret_key }}"
         dest: "{{ awx_docker_compose_dir }}/SECRET_KEY"
 
