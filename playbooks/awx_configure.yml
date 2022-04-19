@@ -115,6 +115,7 @@
         - awx_projects != None
       changed_when: true
 
+
     - name: Export tower assets to refresh playbook data
       awx.awx.tower_receive:
         all: true
