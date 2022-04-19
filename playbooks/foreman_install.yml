@@ -19,9 +19,11 @@
         dest: '/var/lib/foreman-proxy/ssh/{{ item }}'
         src: '{{ item }}'
         decrypt: true
+        owner: foreman-proxy
+        group: foreman-proxy
       loop:
-        - id_rsa.foreman
-        - id_rsa.foreman.pub
+        - id_rsa_foreman_proxy
+        - id_rsa_foreman_proxy.pub
 
 - name: Install Foreman
   gather_facts: true
