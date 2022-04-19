@@ -14,7 +14,7 @@
         injectors: "{{ item.injectors | default(omit) }}"
         state: present
         validate_certs: no
-        tower_host: "{{ awx_web_url }}"
+        tower_host: "{{ awx_server_url }}"
         tower_username: "{{ awx_admin_user }}"
         tower_password: "{{ awx_admin_password }}"
       loop: "{{ awx_credential_types }}"
@@ -29,7 +29,7 @@
         inputs: "{{ item.inputs|default(omit) }}"
         credential_type: "{{ item.credential_type }}"
         validate_certs: no
-        tower_host: "{{ awx_web_url }}"
+        tower_host: "{{ awx_server_url }}"
         tower_username: "{{ awx_admin_user }}"
         tower_password: "{{ awx_admin_password }}"
       loop: "{{ awx_credentials }}"
@@ -38,7 +38,7 @@
 
     - name: Update AWX LDAP Settings
       ansible.builtin.uri:
-        url: "{{ awx_web_url }}/api/v2/settings/all/"
+        url: "{{ awx_server_url }}/api/v2/settings/all/"
         user: "{{ awx_admin_user }}"
         password: "{{ awx_admin_password }}"
         method: PATCH
@@ -62,7 +62,7 @@
           organization: {{ item.organization|default('Default') }}
           script: {{ lookup('file', item.script)|to_json }}
         validate_certs: no
-        tower_host: "{{ awx_web_url }}"
+        tower_host: "{{ awx_server_url }}"
         tower_username: "{{ awx_admin_user }}"
         tower_password: "{{ awx_admin_password }}"
       loop: "{{ awx_inventory_scripts }}"
@@ -78,7 +78,7 @@
         #variables: '{{ item.variables | default(omit) }}'
         state: '{{ item.state | default("present") }}'
         validate_certs: false
-        tower_host: '{{ awx_web_url }}'
+        tower_host: '{{ awx_server_url }}'
         tower_username: '{{ awx_admin_user }}'
         tower_password: '{{ awx_admin_password }}'
         variables: '{{ item.variables | default(omit) }}'
@@ -103,7 +103,7 @@
         webhook_credential: "{{ item.webhook_credential | default(omit) }}"
         state: "{{ item.state | default('present') }}"
         validate_certs: no
-        tower_host: "{{ awx_web_url }}"
+        tower_host: "{{ awx_server_url }}"
         tower_username: "{{ awx_admin_user }}"
         tower_password: "{{ awx_admin_password }}"
       loop: "{{ awx_projects }}"
@@ -119,7 +119,10 @@
       awx.awx.tower_receive:
         all: true
         validate_certs: no
-        tower_host: "{{ awx_web_url }}"
+        tower_host: "{{ awx_server_url }}"
         tower_username: "{{ awx_admin_user }}"
         tower_password: "{{ awx_admin_password }}"
+      async: 300
+      poll: 0
+      ignore_erors: true
       register: towerassets

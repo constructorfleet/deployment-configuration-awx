@@ -63,7 +63,7 @@ foreman_global_parameters:
   - name: ansible_host_config_key
     value: "{{ awx_host_config_key }}"
   - name: ansible_tower_fqdn
-    value: "{{ awx_web_url }}"
+    value: "{{ awx_server_url }}"
   - name: ansible_enabled
     parameter_type: boolean
     value: "True"

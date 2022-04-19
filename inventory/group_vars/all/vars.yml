@@ -1,6 +1,7 @@
 ---
 
 foreman_server_url: 'https://testvm1.home.prettybaked.com'
+awx_server_url: 'http://testvm1.home.prettybaked.com:8080'
 
 foreman_username: !vault |
           $ANSIBLE_VAULT;1.1;AES256
