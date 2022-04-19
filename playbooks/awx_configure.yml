@@ -22,4 +22,3 @@
       loop: "{{ awx_ldap_settings }}"
       loop_control:
         label: "{{ item.name }}"
-      no_log: true
