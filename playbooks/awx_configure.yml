@@ -6,7 +6,7 @@
     - awx
   tasks:
     - name: Update AWX LDAP Settings
-      uri:
+      ansible.builtin.uri:
         url: "{{ awx_web_url }}/api/v2/settings/all/"
         user: "{{ awx_admin_user }}"
         password: "{{ awx_admin_password }}"
@@ -15,10 +15,11 @@
           {
           "{{ item.name }}": {{ item.value | to_json }}
           }
-        force_basic_auth: True
+        force_basic_auth: true
         body_format: json
-        validate_certs: False
-        return_content: True
+        validate_certs: false
+        return_content: true
       loop: "{{ awx_ldap_settings }}"
       loop_control:
         label: "{{ item.name }}"
+      no_log: true
