@@ -1,5 +1,28 @@
 ---
 
+- name: Foreman Prerequisites
+  gather_facts: true
+  hosts:
+    - foreman
+
+  tasks:
+    - name: Create foreman-proxy user ssh directory
+      ansible.builtin.file:
+        path: /var/lib/foreman-proxy/ssh
+        state: directory
+        owner: foreman-proxy
+        group: foreman-proxy
+        mode: 0755
+
+    - name: Copy foreman-proxy ssh credentials
+      ansible.builtin.copy:
+        dest: '/var/lib/foreman-proxy/ssh/{{ item }}'
+        src: '{{ item }}'
+        decrypt: true
+      loop:
+        - id_rsa.foreman
+        - id_rsa.foreman.pub
+
 - name: Install Foreman
   gather_facts: true
   hosts:
