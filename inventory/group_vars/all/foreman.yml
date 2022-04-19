@@ -3,7 +3,7 @@
 foreman_repositories_version: "3.2"
 foreman_installer_scenario: foreman
 foreman_puppet_repositories_version: 7
-foreman_server_url: 'http://testvm1.home.prettybaked.com:8080'
+foreman_server_url: 'https://testvm1.home.prettybaked.com'
 foreman_validate_certs: false
 foreman_username: !vault |
           $ANSIBLE_VAULT;1.1;AES256
@@ -28,3 +28,62 @@ foreman_options:
   - enable-foreman-proxy-plugin-discovery
   - 'foreman-initial-admin-username={{ foreman_username }}'
   - 'foreman-initial-admin-password={{ foreman_password }}'
+
+foreman_organization: Default Organization
+foreman_location: Default Location
+
+foreman_ldap_auth_source_name: PrettyBaked-LDAP
+
+foreman_auth_sources_ldap:
+  - name: '{{ foreman_ldap_auth_source_name }}'
+    host: '{{ ldap_authentication.host }}'
+    port: 389
+    tls: false
+    onthefly_register: true
+    server_type: posix
+    account: '{{ ldap_authentication.account }}'
+    account_password: '{{ ldap_authentication.account_password}}'
+    base_dn: '{{ ldap_authentication.base_dn }}'
+    groups_base: '{{ ldap_authentication.groups_base }}'
+    attr_login: '{{ ldap_authentication.attr_login }}'
+    attr_firstname: '{{ ldap_authentication.attr_firstname }}'
+    attr_lastname: '{{ ldap_authentication.attr_lastname }}'
+    attr_mail: '{{ ldap_authentication.attr_mail }}'
+    ldap_filter: (&(objectClass=posixAccount)(|(gidNumber=1042)(gidNumber=2002)))
+    locations: '{{ foreman_location }}'
+    usergroup_sync: true
+
+foreman_usergroups:
+  internal:
+    - name: administrators
+      admin: yes
+    - name: managers
+      admin: no
+      roles:
+        - Manager
+  external:
+    - name: admin
+      auth_source: '{{ foreman_ldap_auth_source_name }}'
+      usergroup: administrators
+    - name: users
+      auth_source: '{{ foreman_ldap_auth_source_name }}'
+      usergroup: managers
+
+foreman_settings:
+#  - name: host_owner
+#    value: '{{ foreman_admin_id }}'
+#  - name: ansible_ssh_private_key_file
+#    value: '{{ foreman_proxy_user_homedir }}/.ssh/id_rsa'
+  - name: entries_per_page
+    value: 20
+  - name: use_shortname_for_vms
+    value: true
+  - name: idle_timeout
+    value: 480
+  - name: destroy_vm_on_host_delete
+    value: true
+
+foreman_organizations:
+  - name: '{{ foreman_organization }}'
+    locations:
+      - name: '{{ foreman_location}}'

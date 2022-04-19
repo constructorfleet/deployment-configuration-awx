@@ -20,7 +20,7 @@ ldap_authentication:
   account: 'cn=Manager,{{ ldap_base_dn }}'
   account_password: '{{ ldap_password }}'
   base_dn: '{{ ldap_base_dn }}'
-  groups_base: 'cn=groups,{{ ldap_base_dn }}'
+  groups_base: 'ou=groups,{{ ldap_base_dn }}'
   attr_login: uid
   attr_firstname: givenName
   attr_lastname: sn
