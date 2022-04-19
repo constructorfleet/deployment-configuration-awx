@@ -6,6 +6,20 @@
     - foreman
 
   tasks:
+    - name: "Ensure foreman SSH directory exists"
+      ansible.builtin.file:
+        path: /home/foreman/.ssh
+        state: directory
+
+    - name: "Copy Foreman SSH key files"
+      ansible.builtin.copy:
+        src: '{{ item }}'
+        dest: '/home/foreman/.ssh/{{ item }}'
+        decrypt: true
+      loop:
+        - id_rsa.foreman
+        - id_rsa.foreman.pub
+
     - name: "Update global parameters"
       theforeman.foreman.global_parameter:
         name: "{{ item.name }}"
