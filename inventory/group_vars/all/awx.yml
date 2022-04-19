@@ -79,6 +79,8 @@ awx_pg_port: 5432
 awx_web_hostname: awxweb
 awx_task_hostname: awx
 
+awx_host_config_key: 9931bad6-6526-4bf7-81b0-d56e67df3e00
+
 awx_ldap_settings:
   - name: SESSION_COOKIE_AGE
     value: "28800"
