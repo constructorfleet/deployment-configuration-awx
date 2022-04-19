@@ -6,6 +6,20 @@
     - foreman
 
   tasks:
+    - name: "Update global parameters"
+      theforeman.foreman.global_parameter:
+        name: "{{ item.name }}"
+        value: "{{ item.value }}"
+        parameter_type: "{{ item.parameter_type | default('string') }}"
+        server_url: '{{ foreman_server_url }}'
+        username: '{{ foreman_username }}'
+        password: '{{ foreman_password }}'
+        validate_certs: false
+        state: present
+      loop: '{{ foreman_global_parameters }}'
+      loop_control:
+        label: '{{ item.name }}: {{ item.value }}'
+
     - name: Configure Foreman Settings
       ansible.builtin.include_role:
         name: theforeman.foreman.settings
