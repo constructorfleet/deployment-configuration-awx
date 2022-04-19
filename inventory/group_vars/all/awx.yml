@@ -23,7 +23,7 @@ awx_notification_email: !vault |
 
 awx_host_port: 8080
 awx_web_url: "http://{{ ansible_default_ipv4.address }}:{{ awx_host_port }}"
-awx_project_data_dir: /var/lib/awx
+awx_project_data_dir: /etc/ansible
 awx_postgres_data_dir: /var/lib/pgawx
 
 awx_pg_password: !vault |
@@ -63,7 +63,14 @@ awx_admin_passward: !vault |
           36636366646461393566393966623136643165663330333035626636343531386466333166343466
           6635343364353236330a656334353035363931666630346539653765313864353936646266366463
           6136
-
+awx_github_deploy_key: !vault |
+          $ANSIBLE_VAULT;1.1;AES256
+          63633933313134623366303331356430623237343933303237383761663734613633363161663763
+          6361343161366665613166353063336238656531333264300a306461636636346433373432313332
+          39633030356561626363613761376235323565396264656135623630343765646465663937656436
+          3938303934656563620a363165656637323132656432386633396431653739316362653934616138
+          35323030333266346464326333383266303430636333643964336565353834633936333166336361
+          6130383832636662343639346131396132626233663166366264
 awx_postgresql_version: "10"
 awx_postgresql_image: "postgres:{{ awx_postgresql_version }}"
 
@@ -80,6 +87,44 @@ awx_web_hostname: awxweb
 awx_task_hostname: awx
 
 awx_host_config_key: 9931bad6-6526-4bf7-81b0-d56e67df3e00
+
+awx_inventory_scripts:
+  - name: 'foreman.py'
+    description: 'Foreman Dynamic Inventory'
+    script: 'foreman_inventory.py'
+    organization: 'Default'
+
+awx_inventory_sources:
+## Foreman dynamic inventory
+  - name: "foreman.py"
+    description: "Foreman Dynamic Inventory"
+    inventory: "home.prettybaked.com"
+    source: custom
+    source_script: "foreman_inventory.py"
+    credential: foreman.ini
+    overwrite: yes
+    overwrite_vars: no
+    update_on_launch: yes
+    update_cache_timeout: 60
+
+awx_credential_types:
+  - name: foreman.ini
+    description: Foreman Dynamic Inventory
+    kind: cloud
+    inputs: "{{ lookup('template', 'awx/foreman_input.yml.j2') | from_yaml }}"
+    injectors: "{{ lookup('template', 'awx/foreman_injector.yml.j2') | from_yaml }}"
+
+awx_credentials:
+  - name: ansible-github
+    credential_type: Source Control
+    inputs:
+      ssh_key_data: '{{ lookup("file", "id_rsa.foreman") }}'
+  - name: foreman.ini
+    credential_type: foreman.ini
+    inputs:
+      password: "{{ foreman_username }}"
+      username: "{{ foreman_password }}"
+      url: "{{ foreman_server_url }}"
 
 awx_ldap_settings:
   - name: SESSION_COOKIE_AGE
@@ -131,6 +176,17 @@ awx_ldap_settings:
         remove: false
   - name: AUTH_LDAP_BIND_PASSWORD
     value: "{{ ldap_authentication.account_password }}"
+
+awx_projects:
+  - name: "deployment-configuration-awx"
+    description: "Deploy/Configuration AWX"
+    scm_type: git
+    scm_credential: ansible-github
+    scm_clean: yes
+    scm_branch: master
+    scm_update_on_launch: no
+    scm_url: git@github.com:constructorfleet/deployment-configuration-awx.git
+    local_path: "deployment-configuration-awx"
 
 awx_compose_project:
   - project_name: awx

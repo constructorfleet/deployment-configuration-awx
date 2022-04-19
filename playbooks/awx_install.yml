@@ -7,6 +7,11 @@
   vars:
     broadcast_websocket_secret: '{{ awx_secret_key }}'
   tasks:
+    - name: Install Tower-CLI package
+      ansible.builtin.pip:
+        name: ansible-tower-cli
+        state: present
+
     - name: Create {{ awx_docker_compose_dir }} directory
       ansible.builtin.file:
         path: "{{ awx_docker_compose_dir }}"
