@@ -1,0 +1,24 @@
+---
+
+- name: AWX Configuration
+  gather_facts: true
+  hosts:
+    - awx
+  tasks:
+    - name: Update AWX LDAP Settings
+      uri:
+        url: "{{ awx_web_url }}/api/v2/settings/all/"
+        user: "{{ awx_admin_user }}"
+        password: "{{ awx_admin_password }}"
+        method: PATCH
+        body: |
+          {
+          "{{ item.name }}": {{ item.value | to_json }}
+          }
+        force_basic_auth: True
+        body_format: json
+        validate_certs: False
+        return_content: True
+      loop: "{{ awx_ldap_settings }}"
+      loop_control:
+        label: "{{ item.name }}"

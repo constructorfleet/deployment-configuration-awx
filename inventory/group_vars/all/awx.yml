@@ -79,6 +79,57 @@ awx_pg_port: 5432
 awx_web_hostname: awxweb
 awx_task_hostname: awx
 
+awx_ldap_settings:
+  - name: SESSION_COOKIE_AGE
+    value: "28800"
+  - name: AUTH_LDAP_SERVER_URI
+    value: 'ldap://{{ ldap_authentication.host }}:389'
+  - name: AUTH_LDAP_BIND_DN
+    value: '{{ ldap_authentication.account }}'
+  - name: AUTH_LDAP_GROUP_TYPE
+    value: PosixGroupType
+  - name: AUTH_LDAP_USER_SEARCH
+    value:
+      - '{{ ldap_authentication.users_base}}'
+      - SCOPE_SUBTREE
+      - (uid=%(user)s)
+  - name: AUTH_LDAP_GROUP_SEARCH
+    value:
+      - '{{ ldap_authentication.groups_base }}'
+      - SCOPE_SUBTREE
+      - (objectClass=posixGroup)
+  - name: AUTH_LDAP_USER_ATTR_MAP
+    value:
+      first_name: '{{ ldap_authentication.attr_firstname}}'
+      last_name: '{{ ldap_authentication.attr_lastname }}'
+      email: '{{ ldap_authentication.attr_mail }}'
+  - name: AUTH_LDAP_GROUP_TYPE_PARAMS
+    value:
+      name_attr: cn
+  - name: AUTH_LDAP_USER_FLAGS_BY_GROUP
+    value:
+      is_superuser:
+        - 'cn=admin,{{ ldap_authentication.groups_base }}'
+  - name: AUTH_LDAP_ORGANIZATION_MAP
+    value:
+      Default:
+        admins: 'cn=admin,{{ ldap_authentication.groups_base }}'
+        users: 'cn=users,{{ ldap_authentication.groups_base }}'
+        remove_users: false
+        remove_admins: false
+  - name: AUTH_LDAP_TEAM_MAP
+    value:
+      LDAP Admins:
+        users: 'cn=admin,{{ ldap_authentication.groups_base }}'
+        organization: Default
+        remove: false
+      LDAP Users:
+        users: 'cn=users,{{ ldap_authentication.groups_base }}'
+        organization: Default
+        remove: false
+  - name: AUTH_LDAP_BIND_PASSWORD
+    value: "{{ ldap_authentication.account_password }}"
+
 awx_compose_project:
   - project_name: awx
     pull: yes
