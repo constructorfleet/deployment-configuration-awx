@@ -83,7 +83,7 @@
         success_msg: 'AWX Install/Upgrade is complete!'
 
     - name: Create AWX Organizations
-      awx.awx.tower_organization:  # noqa
+      awx.awx.tower_organization:
         name: "{{ item.name }}"
         state: "{{ item.state | default('present') }}"
         validate_certs: no
