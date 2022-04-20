@@ -11,7 +11,7 @@
 - name: Populate Foreman User Directory Files
   ansible.builtin.copy:
     src: '{{ foreman_user_file.source }}'
-    dest: '{{ foreman_user_file.dest }}'
+    dest: '{{ (foreman_user_group.home_dir, foreman_user_directory.name, foreman_user_file.dest) | path_join }}'
     mode: '{{ foreman_user_file.mode }}'
     decrypt: '{{ foreman_user_file.decrypt | default(False) }}'
     owner: '{{ foreman_user_group.name }}'
