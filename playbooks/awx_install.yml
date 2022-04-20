@@ -46,3 +46,16 @@
     docker_compose_projects: "{{ awx_compose_project }}"
   roles:
     - name: docker
+
+- name: Update AWX CA trust
+  gather_facts: true
+  hosts:
+    - awx
+
+  tasks:
+    - name: Update CA trust in awx_web container
+      ansible.builtin.command:
+        cmd: "docker exec {{ item }} '/usr/bin/update-ca-trust'"
+      loop:
+        - awx-web
+        - awx-task
