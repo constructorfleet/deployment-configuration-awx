@@ -1,5 +1,8 @@
 ---
 
+awx_inventory_name: DEV - PrettyBaked.com
+awx_inventory_description: PrettyBaked.com Development Hosts
+awx_host_config_key: 9931bad6-6526-4bf7-81b0-d56e67df3e00
 awx_admin_password: !vault |
           $ANSIBLE_VAULT;1.1;AES256
           65356234386564633839613038336338343263646339323733653237383933353366363965373438
@@ -83,8 +86,6 @@ awx_pg_port: 5432
 
 awx_web_hostname: awxweb
 awx_task_hostname: awx
-
-awx_host_config_key: 9931bad6-6526-4bf7-81b0-d56e67df3e00
 
 awx_organizations:
   - name: Default
