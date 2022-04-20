@@ -12,7 +12,6 @@ foreman_users_groups:
     directories:
       - name: .ssh
         mode: '0755'
-        symlink: /var/lib/foreman/ssh
         files:
           - source: id_rsa.foreman
             dest: id_rsa
@@ -29,7 +28,6 @@ foreman_users_groups:
     directories:
       - name: .ssh
         mode: '0755'
-        symlink: /var/lib/foreman-proxy/ssh
         files:
           - source: id_rsa_foreman_proxy
             dest: id_rsa_foreman_proxy
