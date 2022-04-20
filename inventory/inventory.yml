@@ -2,8 +2,7 @@ all:
   children:
     dev:
       hosts:
-        testvm1.home.prettybaked.com:
-        test-build.home.prettybaked.com:
+        dev-build.home.prettybaked.com:
     prod:
       hosts:
     foreman:
