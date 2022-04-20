@@ -8,6 +8,18 @@
     group: '{{ foreman_user_group.name }}'
     state: '{{ foreman_user_directory.state | default("directory") }}'
 
+- name: Ensure Foreman User Directory Is Symlinked
+  ansible.builtin.file:
+    src: '{{ (foreman_user_group.home_dir, foreman_user_directory.name) | path_join }}'
+    dest: '{{ foreman_user_directory.symlink }}'
+    owner: '{{ foreman_user_group.name }}'
+    group: '{{ foreman_user_group.name }}'
+    state: link
+  when:
+    - foreman_user_directory is defined
+    - foreman_user_directory.symlink is defined
+    - foreman_user_directory.symlink is string
+
 - name: Populate Foreman User Directory Files
   ansible.builtin.copy:
     src: '{{ foreman_user_file.source }}'
