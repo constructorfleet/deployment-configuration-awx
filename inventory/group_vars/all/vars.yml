@@ -1,6 +1,7 @@
 ---
 
-foreman_server_url: 'https://{{ inventory_hostname }}'
+foreman_server_url: 'https://testvm1.home.prettybaked.com'
+foreman_validate_certs: false
 awx_host_port: 8080
 awx_server_url: "http://{{ ansible_default_ipv4.address }}:{{ awx_host_port }}"
 vault_password: !vault |

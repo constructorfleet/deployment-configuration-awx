@@ -100,6 +100,61 @@
           loop_control:
             label: '{{ item.name }}'
 
+        - name: Create AWX Inventories
+          awx.awx.tower_inventory:
+            name: '{{ inventory.name }}'
+            description: '{{ inventory.description | default(omit) }}'
+            organization: '{{ inventory.organization }}'
+            variables: '{{ inventory.variables | default(omit) }}'
+            kind: '{{ inventory.kind | default(omit) }}'
+            host_filter: '{{ (inventory.host_filter | default(omit)) if (inventory.kind | default("")) == "smart" else omit }}'
+            state: '{{ inventory.state | default("present") }}'
+            validate_certs: no
+            tower_host: "{{ awx_server_url }}"
+            tower_username: "{{ awx_admin_user }}"
+            tower_password: "{{ awx_admin_password }}"
+          loop: '{{ awx_inventories | default([]) }}'
+          loop_control:
+            loop_var: inventory
+            label: '{{ inventory.name }}'
+
+        - name: Create AWX Inventory Plugin Source Configurations
+          ansible.builtin.copy:
+            dest: '{{ inv_plugin.name }}'
+            mode: '0777'
+            content: '{{ inv_plugin | dict2items | rejectattr('key', 'eq', 'name') | items2dict| to_nice_yaml }}'
+          loop: '{{ awx_inventory_plugins | default([]) }}'
+          loop_control:
+            loop_var: inv_plugin
+            label: '{{ inv_plugin.name }}'
+
+        - name: Create AWX Inventory Sources
+          awx.awx.tower_inventory_source:
+            name: '{{ inv_source.name }}'
+            description: '{{ inv_source.description | default(omit) }}'
+            inventory: '{{ inv_source.inventory_name }}'
+            source: '{{ inv_source.source }}'
+            source_path: '{{ inv_source.path | default(omit) }}'
+            source_vars: '{{ inv_source.variables | default(omit) }}'
+            enabled_var: '{{ inv_source.enabled.var | default(omit) }}'
+            enabled_value: '{{ inv_source.enabled.value | default(omit) }}'
+            host_filter: '{{ inv_source.host_filter | default(omit) }}'
+            credential: '{{ inv_source.credential_name | default(omit) }}'
+            overwrite: '{{ inv_source.overwrite | default(omit) }}'
+            overwrite_vars: '{{ inv_source.overwrite_vars | default(omit) }}'
+            update_on_launch: '{{ inv_source.update | default(omit) }}'
+            update_on_project_update: '{{ inv_source.update | default(omit) }}'
+            source_project: '{{ inv_source.project | default(omit) }}'
+            state: '{{ inv_source.state | default("present") }}'
+            validate_certs: no
+            tower_host: "{{ awx_server_url }}"
+            tower_username: "{{ awx_admin_user }}"
+            tower_password: "{{ awx_admin_password }}"
+          loop: '{{ awx_inventory_sources | default([]) }}'
+          loop_control:
+            loop_var: inv_source
+            label: '{{ inv_source.name }}'
+
         - name: Create Additional Tower Credential Types
           awx.awx.tower_credential_type:
             name: "{{ item.name }}"

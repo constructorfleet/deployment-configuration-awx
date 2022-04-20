@@ -89,24 +89,23 @@ awx_host_config_key: 9931bad6-6526-4bf7-81b0-d56e67df3e00
 awx_organizations:
   - name: Default
 
-awx_inventory_scripts:
-  - name: 'foreman.py'
-    description: 'Foreman Dynamic Inventory'
-    script: 'foreman_inventory.py'
-    organization: 'Default'
+awx_inventories:
+  - name: '{{ awx_inventory_name }}'
+    description: '{{ awx_inventory_description }}'
+    organization: '{{ awx_organizations | first | attr("name") }}'
 
-awx_inventory_sources:
-## Foreman dynamic inventory
-  - name: "foreman.py"
-    description: "Foreman Dynamic Inventory"
-    inventory: "home.prettybaked.com"
-    source: custom
-    source_script: "foreman_inventory.py"
-    credential: foreman.ini
-    overwrite: yes
-    overwrite_vars: no
-    update_on_launch: yes
-    update_cache_timeout: 60
+awx_inventory_plugins:
+  - name: inventory.foreman.yml
+    plugin: theforeman.foreman.foreman
+    group_prefix: ''
+    vars_prefix: ''
+    want_facts: true
+    url: '{{ foreman_server_url }}'
+    user: '{{ foreman_username }}'
+    password: '{{ foreman_password }}'
+    validate_certs: false
+
+awx_inventory_sources: []
 
 awx_credential_types:
   - name: foreman.ini

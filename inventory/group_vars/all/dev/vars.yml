@@ -1,1 +1,4 @@
 ---
+
+awx_inventory_name: DEV - PrettyBaked.com
+awx_inventory_description: PrettyBaked.com Development Hosts
