@@ -1,0 +1,143 @@
+---
+
+- name: Foreman Prerequisites
+  gather_facts: true
+  hosts:
+    - foreman
+
+  tasks:
+    - name: Create foreman group
+      ansible.builtin.group:
+        name: foreman
+        gid: 998
+        state: present
+
+    - name: Create foreman-proxy group
+      ansible.builtin.group:
+        name: foreman-proxy
+        gid: 997
+        state: present
+
+    - name: Create foreman user
+      ansible.builtin.user:
+        name: foreman
+        uid: 998
+        group: foreman
+        create_home: true
+        state: present
+
+    - name: Create foreman-proxy user
+      ansible.builtin.user:
+        name: foreman-proxy
+        uid: 997
+        group: foreman-proxy
+        create_home: true
+        state: present
+
+    - name: Create foreman-proxy group
+      ansible.builtin.group:
+        name: foreman-proxy
+        gid: 997
+        state: present
+
+    - name: Create foreman-proxy user ssh directory
+      ansible.builtin.file:
+        path: /var/lib/foreman-proxy/ssh
+        state: directory
+        owner: foreman-proxy
+        group: foreman-proxy
+        mode: 0755
+
+    - name: Copy foreman-proxy ssh credentials
+      ansible.builtin.copy:
+        dest: '/var/lib/foreman-proxy/ssh/{{ item }}'
+        src: '{{ item }}'
+        decrypt: true
+        owner: foreman-proxy
+        group: foreman-proxy
+      loop:
+        - id_rsa_foreman_proxy
+        - id_rsa_foreman_proxy.pub
+
+- name: Install Foreman
+  gather_facts: true
+  hosts:
+    - foreman
+  vars:
+    foreman_installer_options: "{{ ([''] + foreman_options) | join(' --') | split(' ') | reject('eq', '') | list }}"
+  roles:
+    - name: theforeman.operations.foreman_repositories
+    - name: theforeman.operations.ansible_repositories
+      when:
+        - ansible_os_family|lower != 'debian'
+    - name: theforeman.operations.puppet_repositories
+    - name: theforeman.operations.installer
+
+  tasks:
+    - name: "Ensure foreman SSH directory exists"
+      ansible.builtin.file:
+        path: /home/foreman/.ssh
+        state: directory
+
+    - name: "Copy Foreman SSH key files"
+      ansible.builtin.copy:
+        src: '{{ item }}'
+        dest: '/home/foreman/.ssh/{{ item }}'
+        decrypt: true
+      loop:
+        - id_rsa.foreman
+        - id_rsa.foreman.pub
+
+    - name: "Update global parameters"
+      theforeman.foreman.global_parameter:
+        name: "{{ item.name }}"
+        value: "{{ item.value }}"
+        parameter_type: "{{ item.parameter_type | default('string') }}"
+        server_url: '{{ foreman_server_url }}'
+        username: '{{ foreman_username }}'
+        password: '{{ foreman_password }}'
+        validate_certs: false
+        state: present
+      loop: '{{ foreman_global_parameters }}'
+      loop_control:
+        label: '{{ item.name }}: {{ item.value }}'
+
+    - name: Configure Foreman Settings
+      ansible.builtin.include_role:
+        name: theforeman.foreman.settings
+
+    - name: Configure Foreman LDAP Authentication Sources
+      ansible.builtin.include_role:
+        name: theforeman.foreman.auth_sources_ldap
+
+    - name: Configure Foreman Usergroups
+      theforeman.foreman.usergroup:
+        name: '{{ usergroup.name }}'
+        admin: '{{ usergroup.admin | default(False) }}'
+        roles: '{{ usergroup.roles | default(omit) }}'
+        users: '{{ usergroup.users | default(omit) }}'
+        usergroups: '{{ usergroups.usergroups | default(omit) }}'
+        server_url: '{{ foreman_server_url }}'
+        username: '{{ foreman_username }}'
+        password: '{{ foreman_password }}'
+        state: '{{ usergroup.state | default("present") }}'
+        validate_certs: false
+      loop: '{{ foreman_usergroups.internal }}'
+      loop_control:
+        loop_var: usergroup
+        label: '{{ usergroup.name }}'
+
+    - name: Configure Foreman External Usergroups
+      theforeman.foreman.external_usergroup:
+        name: '{{ usergroup.name }}'
+        auth_source_ldap: '{{ usergroup.auth_source }}'
+        usergroup: '{{ usergroup.usergroup }}'
+        server_url: '{{ foreman_server_url }}'
+        username: '{{ foreman_username }}'
+        password: '{{ foreman_password }}'
+        state: '{{ usergroup.state | default("present") }}'
+        validate_certs: false
+      loop: '{{ foreman_usergroups.external }}'
+      loop_control:
+        loop_var: usergroup
+        label: '{{ usergroup.name }}'

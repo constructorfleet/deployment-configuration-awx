@@ -1,0 +1,183 @@
+---
+
+- name: AWX Prerequisites
+  gather_facts: true
+  hosts:
+    - awx
+  vars:
+    broadcast_websocket_secret: '{{ awx_secret_key }}'
+  tasks:
+    - name: Install Tower-CLI package
+      ansible.builtin.pip:
+        name: ansible-tower-cli
+        state: present
+
+    - name: Create {{ awx_docker_compose_dir }} directory
+      ansible.builtin.file:
+        path: "{{ awx_docker_compose_dir }}"
+        state: directory
+
+    - name: Create Redis socket directory
+      ansible.builtin.file:
+        path: "{{ awx_docker_compose_dir }}/redis_socket"
+        state: directory
+        mode: 0777
+
+    - name: Create Docker Compose Configuration
+      ansible.builtin.template:
+        src: "awx/{{ item }}.j2"
+        dest: "{{ awx_docker_compose_dir }}/{{ item }}"
+      loop:
+        - environment.sh
+        - credentials.py
+        - nginx.conf
+        - redis.conf
+
+    - name: Render SECRET_KEY file
+      ansible.builtin.copy:
+        content: "{{ awx_secret_key }}"
+        dest: "{{ awx_docker_compose_dir }}/SECRET_KEY"
+
+- name: Install AWX
+  gather_facts: true
+  hosts:
+    - awx
+  vars:
+    docker_compose_projects: "{{ awx_compose_project }}"
+  roles:
+    - name: docker
+
+- name: Update AWX CA trust
+  gather_facts: true
+  hosts:
+    - awx
+
+  tasks:
+    - name: Update CA trust in awx_web container
+      ansible.builtin.command:
+        cmd: "docker exec {{ item }} '/usr/bin/update-ca-trust'"
+      loop:
+        - awx-web
+        - awx-task
+
+    - name: Create AWX Organizations
+      awx.awx.organization:  # noqa
+        name: "{{ item.name }}"
+        state: "{{ item.state | default('present') }}"
+        validate_certs: no
+        tower_host: "{{ awx_server_url }}"
+        tower_username: "{{ awx_admin_user }}"
+        tower_password: "{{ awx_admin_password }}"
+      loop: '{{ awx_organizations }}'
+      tags:
+        - skip_ansible_lint
+
+    - name: Create Additional Tower Credential Types
+      awx.awx.tower_credential_type:
+        name: "{{ item.name }}"
+        description: "{{ item.description | default(omit) }}"
+        kind: "{{ item.kind }}"
+        inputs: "{{ item.inputs | default(omit) }}"
+        injectors: "{{ item.injectors | default(omit) }}"
+        state: present
+        validate_certs: no
+        tower_host: "{{ awx_server_url }}"
+        tower_username: "{{ awx_admin_user }}"
+        tower_password: "{{ awx_admin_password }}"
+      loop: "{{ awx_credential_types }}"
+      loop_control:
+        label: "{{ item.name }}"
+
+    - name: Create Tower credentials
+      awx.awx.tower_credential:
+        name: "{{ item.name }}"
+        organization: "{{ item.organization | default('Default') }}"
+        state: "{{ item.state | default('present') }}"
+        inputs: "{{ item.inputs|default(omit) }}"
+        credential_type: "{{ item.credential_type }}"
+        validate_certs: no
+        tower_host: "{{ awx_server_url }}"
+        tower_username: "{{ awx_admin_user }}"
+        tower_password: "{{ awx_admin_password }}"
+      loop: "{{ awx_credentials }}"
+      loop_control:
+        label: "{{ item.name }}"
+
+    - name: Update AWX LDAP Settings
+      ansible.builtin.uri:
+        url: "{{ awx_server_url }}/api/v2/settings/all/"
+        user: "{{ awx_admin_user }}"
+        password: "{{ awx_admin_password }}"
+        method: PATCH
+        body: |
+          {%- set settings = awx_ldap_settings | items2dict(key_name='name', value_name='value') -%}
+          {{ settings }}
+        force_basic_auth: true
+        body_format: json
+        validate_certs: false
+        return_content: true
+#      loop: "{{ awx_ldap_settings }}"
+#      loop_control:
+#        label: "{{ item.name }}"
+
+    - name: Synchronize Inventory Scripts
+      awx.awx.tower_send:
+        assets: |
+          asset_type: inventory_script
+          description: {{ item.description }}
+          name: {{ item.name }}
+          organization: {{ item.organization|default('Default') }}
+          script: {{ lookup('file', item.script)|to_json }}
+        validate_certs: no
+        tower_host: "{{ awx_server_url }}"
+        tower_username: "{{ awx_admin_user }}"
+        tower_password: "{{ awx_admin_password }}"
+      loop: "{{ awx_inventory_scripts }}"
+      loop_control:
+        label: "{{ item.name }}"
+      when:
+
+    - name: Setup Foreman Dynamic Inventory
+      awx.awx.tower_inventory:
+        name: '{{ item.name }}'
+        description: '{{ item.description | default(omit) }}'
+        organization: 'Default'
+        #variables: '{{ item.variables | default(omit) }}'
+        state: '{{ item.state | default("present") }}'
+        validate_certs: false
+        tower_host: '{{ awx_server_url }}'
+        tower_username: '{{ awx_admin_user }}'
+        tower_password: '{{ awx_admin_password }}'
+        variables: '{{ item.variables | default(omit) }}'
+      loop: '{{ awx_inventory_sources }}'
+      loop_control:
+        label: '{{ item.name }}'
+
+#    - name: Add projects to Tower
+#      awx.awx.tower_project:
+#        name: "{{ item.name }}"
+#        description: "{{ item.description | default(omit) }}"
+#        scm_type: "{{ item.scm_type | default(omit) }}"
+#        scm_credential: "{{ item.scm_credential | default(omit) }}"
+#        scm_clean: "{{ item.scm_clean | default(omit) }}"
+#        scm_branch: "{{ item.scm_branch | default(omit) }}"
+#        scm_update_on_launch: "{{ item.scm_update_on_launch | default(omit) }}"
+#        scm_update_cache_timeout: "{{ item.scm_update_cache_timeout | default(omit) }}"
+#        scm_url: "{{ item.scm_url | default(omit) }}"
+#        local_path: "{{ item.local_path | default(omit) }}"
+#        organization: "{{ item.organization | default('Default') }}"
+#        webhook_service: "{{ item.webhook_service | default(omit) }}"
+#        webhook_credential: "{{ item.webhook_credential | default(omit) }}"
+#        state: "{{ item.state | default('present') }}"
+#        validate_certs: no
+#        tower_host: "{{ awx_server_url }}"
+#        tower_username: "{{ awx_admin_user }}"
+#        tower_password: "{{ awx_admin_password }}"
+#      loop: "{{ awx_projects }}"
+#      loop_control:
+#        label: "{{ item.name }}"
+#      register: project_import
+#      when:
+#        - awx_projects is defined
+#        - awx_projects != None
+#      changed_when: true

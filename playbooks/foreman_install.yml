@@ -6,6 +6,40 @@
     - foreman
 
   tasks:
+    - name: Create foreman group
+      ansible.builtin.group:
+        name: foreman
+        gid: 998
+        state: present
+
+    - name: Create foreman-proxy group
+      ansible.builtin.group:
+        name: foreman-proxy
+        gid: 997
+        state: present
+
+    - name: Create foreman user
+      ansible.builtin.user:
+        name: foreman
+        uid: 998
+        group: foreman
+        create_home: true
+        state: present
+
+    - name: Create foreman-proxy user
+      ansible.builtin.user:
+        name: foreman-proxy
+        uid: 997
+        group: foreman-proxy
+        create_home: true
+        state: present
+
+    - name: Create foreman-proxy group
+      ansible.builtin.group:
+        name: foreman-proxy
+        gid: 997
+        state: present
+
     - name: Create foreman-proxy user ssh directory
       ansible.builtin.file:
         path: /var/lib/foreman-proxy/ssh
