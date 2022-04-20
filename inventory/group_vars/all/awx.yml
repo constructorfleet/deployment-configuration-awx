@@ -187,16 +187,16 @@ awx_ldap_settings:
   - name: AUTH_LDAP_BIND_PASSWORD
     value: "{{ ldap_authentication.account_password }}"
 
-#awx_projects:
-#  - name: "deployment-configuration-awx"
-#    description: "Deploy/Configuration AWX"
-#    scm_type: git
-#    scm_credential: ansible-github
-#    scm_clean: yes
-#    scm_branch: master
-#    scm_update_on_launch: no
-#    scm_url: git@github.com:constructorfleet/deployment-configuration-awx.git
-#    local_path: "deployment-configuration-awx"
+awx_projects:
+  - name: Provisioning and Deployment
+    description: Provision, Deploy and Configuration of Systems
+    scm_type: git
+    scm_credential: ansible-github
+    scm_clean: yes
+    scm_branch: feature/ldap_auth
+    scm_update_on_launch: no
+    scm_url: git@github.com:constructorfleet/deployment-configuration-awx.git
+    local_path: deployment-configuration-awx
 
 awx_compose_project:
   - project_name: awx

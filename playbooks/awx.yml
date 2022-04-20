@@ -165,7 +165,7 @@
           loop_control:
             label: "{{ item.name }}"
 
-        - name: Create Tower credentials
+        - name: Create Tower Credentials
           awx.awx.tower_credential:
             name: "{{ item.name }}"
             organization: "{{ item.organization | default('Default') }}"
@@ -191,52 +191,28 @@
             validate_certs: false
             return_content: true
 
-#
-#
-#        - name: Setup Foreman Dynamic Inventory
-#          awx.awx.inventory:
-#            name: '{{ item.name }}'
-#            description: '{{ item.description | default(omit) }}'
-#            organization: 'Default'
-#            #variables: '{{ item.variables | default(omit) }}'
-#            state: '{{ item.state | default("present") }}'
-#            validate_certs: false
-#            tower_host: '{{ awx_server_url }}'
-#            tower_username: '{{ awx_admin_user }}'
-#            tower_password: '{{ awx_admin_password }}'
-#            variables: '{{ item.variables | default(omit) }}'
-#          loop: '{{ awx_inventory_sources }}'
-#          loop_control:
-#            label: '{{ item.name }}'
+        - name: Add projects to Tower
+          awx.awx.tower_project:
+            name: "{{ project.name }}"
+            description: "{{ project.description | default(omit) }}"
+            scm_type: "{{ project.scm_type | default(omit) }}"
+            scm_credential: "{{ project.scm_credential | default(omit) }}"
+            scm_clean: "{{ project.scm_clean | default(omit) }}"
+            scm_branch: "{{ project.scm_branch | default(omit) }}"
+            scm_update_on_launch: "{{ project.scm_update_on_launch | default(omit) }}"
+            scm_update_cache_timeout: "{{ project.scm_update_cache_timeout | default(omit) }}"
+            scm_url: "{{ project.scm_url | default(omit) }}"
+            local_path: "{{ project.local_path | default(omit) }}"
+            organization: "{{ project.organization | default('Default') }}"
+            state: "{{ project.state | default('present') }}"
+            validate_certs: no
+            tower_host: "{{ awx_server_url }}"
+            tower_oauthtoken: '{{ tower_token }}'
+          loop: "{{ awx_projects }}"
+          loop_control:
+            loop_var: project
+            label: "{{ project.name }}"
 
-    #    - name: Add projects to Tower
-    #      awx.awx.project:
-    #        name: "{{ item.name }}"
-    #        description: "{{ item.description | default(omit) }}"
-    #        scm_type: "{{ item.scm_type | default(omit) }}"
-    #        scm_credential: "{{ item.scm_credential | default(omit) }}"
-    #        scm_clean: "{{ item.scm_clean | default(omit) }}"
-    #        scm_branch: "{{ item.scm_branch | default(omit) }}"
-    #        scm_update_on_launch: "{{ item.scm_update_on_launch | default(omit) }}"
-    #        scm_update_cache_timeout: "{{ item.scm_update_cache_timeout | default(omit) }}"
-    #        scm_url: "{{ item.scm_url | default(omit) }}"
-    #        local_path: "{{ item.local_path | default(omit) }}"
-    #        organization: "{{ item.organization | default('Default') }}"
-    #        webhook_service: "{{ item.webhook_service | default(omit) }}"
-    #        webhook_credential: "{{ item.webhook_credential | default(omit) }}"
-    #        state: "{{ item.state | default('present') }}"
-    #        validate_certs: no
-    #        tower_host: "{{ awx_server_url }}"
-    #        tower_username: "{{ awx_admin_user }}"
-    #        tower_password: "{{ awx_admin_password }}"
-    #      loop: "{{ awx_projects }}"
-    #      loop_control:
-    #        label: "{{ item.name }}"
-    #      register: project_import
-    #      when:
-    #        - awx_projects is defined
-    #        - awx_projects != None
-    #      changed_when: true
       always:
         - name: Delete OAuth Token
           awx.awx.tower_token:
