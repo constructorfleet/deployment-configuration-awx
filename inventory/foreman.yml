@@ -17,5 +17,10 @@ password: !vault |
           6138346435636264620a613863333764643130356232343339646663356236633862353332383335
           39396231653236373731623330343062356463346462316634326334333836303635
 validate_certs: false
+cache: true
+group_prefix: ''
+use_extra_vars: true
+vars_prefix: ''
+want_facts: true
 hostnames:
   - name.split('.')[0]
