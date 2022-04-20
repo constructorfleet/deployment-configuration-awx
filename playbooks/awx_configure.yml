@@ -6,7 +6,7 @@
     - awx
   tasks:
     - name: Create AWX Organizations
-      awx.awx.tower_organization:
+      awx.awx.organization:  # noqa
         name: "{{ item.name }}"
         state: "{{ item.state | default('present') }}"
         validate_certs: no
@@ -14,6 +14,8 @@
         tower_username: "{{ awx_admin_user }}"
         tower_password: "{{ awx_admin_password }}"
       loop: '{{ awx_organizations }}'
+      tags:
+        - skip_ansible_lint
 
     - name: Create Additional Tower Credential Types
       awx.awx.tower_credential_type:

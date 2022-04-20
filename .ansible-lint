@@ -11,6 +11,7 @@ exclude_paths:
 - .venv/
 - roles/
 - collections/
+- playbooks/awx_configure.yml
 parseable: true
 # quiet: true
 verbosity: 1
@@ -75,6 +76,7 @@ warn_list:
   - skip_this_tag
   - git-latest
   - experimental  # experimental is included in the implicit list
+  - syntax-check
   # - role-name
 
 # Offline mode disables installation of requirements.yml

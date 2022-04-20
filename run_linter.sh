@@ -7,4 +7,6 @@ if [[ ! -d venv ]]; then
 fi
 
 source "$(pwd)/venv/bin/activate"
+export ANSIBLE_COLLECTIONS_PATH="$(pwd)/collections"
+export ANSIBLE_ROLES_PATH="$(pwd)/roles"
 PATH="$(pwd)/venv/bin:$PATH" VIRTUAL_ENV="$(pwd)/venv" ansible-lint -p playbooks/ roles/
