@@ -24,6 +24,7 @@
         uid: 998
         group: foreman
         create_home: true
+        home: /home/foreman
         state: present
 
     - name: Create foreman-proxy user
@@ -32,17 +33,12 @@
         uid: 997
         group: foreman-proxy
         create_home: true
-        state: present
-
-    - name: Create foreman-proxy group
-      ansible.builtin.group:
-        name: foreman-proxy
-        gid: 997
+        home: /usr/share/foreman-proxy
         state: present
 
     - name: Create foreman-proxy user ssh directory
       ansible.builtin.file:
-        path: /var/lib/foreman-proxy/ssh
+        path: /usr/share/foreman-proxy/ssh
         state: directory
         owner: foreman-proxy
         group: foreman-proxy
@@ -50,7 +46,7 @@
 
     - name: Copy foreman-proxy ssh credentials
       ansible.builtin.copy:
-        dest: '/var/lib/foreman-proxy/ssh/{{ item }}'
+        dest: '/usr/share/foreman-proxy/ssh/{{ item | replace("_foreman_proxy", "") }}'
         src: '{{ item }}'
         decrypt: true
         owner: foreman-proxy
@@ -58,6 +54,7 @@
       loop:
         - id_rsa_foreman_proxy
         - id_rsa_foreman_proxy.pub
+
     - name: test
       block:
         - ansible.builtin.include_role:
