@@ -1,0 +1,17 @@
+---
+
+- name: Build Services
+  gather_facts: true
+  strategy: free
+  hosts:
+    - buildservices
+
+  tasks:
+    - name: Foreman install/configuration
+      ansible.builtin.import_playbook: foreman.yml
+      when:
+        - "'foreman' in groups"
+    - name: AWX install/configuration
+      ansible.builtin.import_playbook: awx.yml
+      when:
+        - "'awx' in groups"
