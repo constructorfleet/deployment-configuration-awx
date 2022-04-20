@@ -10,7 +10,7 @@
 
 - name: Ensure Foreman User Directory SymLink Path Exists
   ansible.builtin.file:
-    path: '{{ foreman_user_directory.symlink.split("/")[:-1] }}'
+    path: '{{ foreman_user_directory.symlink | replace((foreman_user_directory.symlink | basename), "") }}'
     owner: '{{ foreman_user_group.name }}'
     group: '{{ foreman_user_group.name }}'
     state: directory
