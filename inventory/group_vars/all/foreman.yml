@@ -6,6 +6,40 @@ foreman_puppet_repositories_version: 7
 foreman_server_url: 'https://testvm1.home.prettybaked.com'
 foreman_validate_certs: false
 
+foreman_users_groups:
+  - name: foreman
+    uid: 998
+    gid: 998
+    home_dir: /home/foreman
+    directories:
+      - name: .ssh
+        mode: '0755'
+        files:
+          - source: id_rsa.foreman
+            dest: id_rsa
+            decrypt: true
+            mode: '0600'
+          - source: id_rsa.foreman.pub
+            dest: id_rsa.pub
+            decrypt: true
+            mode: '0644'
+  - name: foreman-proxy
+    uid: 997
+    gid: 997
+    home_dir: /usr/share/foreman-proxy
+    directories:
+      - name: ssh
+        mode: '0755'
+        files:
+          - source: id_rsa_foreman_proxy
+            dest: id_rsa
+            decrypt: true
+            mode: '0600'
+          - source: id_rsa_foreman_proxy.pub
+            dest: id_rsa.pub
+            decrypt: true
+            mode: '0644'
+
 foreman_options:
   - enable-foreman-cli-ansible
   - enable-foreman-cli-discovery
