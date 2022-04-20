@@ -1,6 +1,6 @@
 ---
 
-- name: AWX Prerequisites
+- name: AWX Install/Configure
   gather_facts: true
   hosts:
     - awx
