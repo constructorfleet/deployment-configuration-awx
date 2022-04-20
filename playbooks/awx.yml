@@ -52,6 +52,36 @@
         - awx-web
         - awx-task
 
+    - name: Check AWX Installation Complete via Ping API
+      ansible.builtin.uri:
+        url: '{{ awx_server_url }}/api/v2/ping'
+      async: 300
+      poll: 0
+      register: awx_ping_result
+      delegate_to: localhost
+      connection: local
+      no_log: true
+      ignore_errors: true
+
+    - name: Wait for `Check AWX Installation Complete via Ping API` to return
+      ansible.builtin.async_status:
+        jid: '{{ awx_ping_result.ansible_job_id }}'
+      register: awx_complete
+      retries: 300
+      delay: 60
+      until: awx_complete.finished
+      delegate_to: localhost
+      connection: local
+      ignore_errors: true
+      no_log: true
+
+    - name: Assert AWX Install/Upgrade Complete
+      ansible.builtin.assert:
+        that:
+          - '{{ awx_complete is not failed }}'
+        fail_msg: 'AWX Install/Upgrade is taking awhile, come back later for configuration.'
+        success_msg: 'AWX Install/Upgrade is complete!'
+
     - name: Create AWX Organizations
       awx.awx.tower_organization:  # noqa
         name: "{{ item.name }}"

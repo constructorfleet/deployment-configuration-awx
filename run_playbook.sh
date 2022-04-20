@@ -8,8 +8,5 @@ if [[ ! -d venv ]]; then
   exit 1
 fi
 
-if [[ ! -f .vars.yml ]]; then
-  touch .vars.yml
-fi
 source "$(pwd)/venv/bin/activate"
 PATH="$(pwd)/venv/bin:$PATH" VIRTUAL_ENV="$(pwd)/venv" ansible-playbook "$@"
