@@ -8,10 +8,11 @@ foreman_users_groups:
   - name: foreman
     uid: 998
     gid: 998
-    home_dir: /home/foreman
+    home_dir: /usr/share/foreman
     directories:
       - name: .ssh
         mode: '0755'
+        symlink: /var/lib/foreman/ssh
         files:
           - source: id_rsa.foreman
             dest: id_rsa
@@ -26,16 +27,16 @@ foreman_users_groups:
     gid: 997
     home_dir: /usr/share/foreman-proxy
     directories:
-      - name: ssh
+      - name: .ssh
         mode: '0755'
-        symlink: /var/lib/foreman-proxy
+        symlink: /var/lib/foreman-proxy/ssh
         files:
           - source: id_rsa_foreman_proxy
-            dest: id_rsa
+            dest: id_rsa_foreman_proxy
             decrypt: true
             mode: '0600'
           - source: id_rsa_foreman_proxy.pub
-            dest: id_rsa.pub
+            dest: id_rsa_foreman_proxy.pub
             decrypt: true
             mode: '0644'
 
