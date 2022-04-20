@@ -38,21 +38,12 @@
         content: "{{ awx_secret_key }}"
         dest: "{{ awx_docker_compose_dir }}/SECRET_KEY"
 
-- name: Install AWX
-  gather_facts: true
-  hosts:
-    - awx
-  vars:
-    docker_compose_projects: "{{ awx_compose_project }}"
-  roles:
-    - name: docker
+    - name: Build Docker Compose Project
+      ansible.builtin.include_role:
+        name: docker
+      vars:
+        docker_compose_projects: "{{ awx_compose_project }}"
 
-- name: Update AWX CA trust
-  gather_facts: true
-  hosts:
-    - awx
-
-  tasks:
     - name: Update CA trust in awx_web container
       ansible.builtin.command:
         cmd: "docker exec {{ item }} '/usr/bin/update-ca-trust'"
