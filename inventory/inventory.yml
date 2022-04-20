@@ -8,6 +8,8 @@ all:
     foreman:
       children:
         dev:
+        prod:
     awx:
       children:
         dev:
+        prod:
