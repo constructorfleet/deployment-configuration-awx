@@ -7,16 +7,6 @@
     - buildservices
 
   tasks:
-    - name: Foreman
-      block:
-        - name: Foreman install/configuration
-          ansible.builtin.import_playbook: foreman.yml
-      when:
-        - "'foreman' in groups"
+    - ansible.builtin.import_playbook: foreman.yml
 
-    - name: AWX
-      block:
-        - name: AWX install/configuration
-          ansible.builtin.import_playbook: awx.yml
-      when:
-        - "'awx' in groups"
+    - ansible.builtin.import_playbook: awx.yml
