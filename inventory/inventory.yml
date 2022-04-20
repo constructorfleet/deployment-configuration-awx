@@ -3,7 +3,6 @@ all:
     dev:
       hosts:
         testvm1.home.prettybaked.com:
-          ansible_ssh_host: 10.0.10.143
     prod:
       hosts:
     foreman:

@@ -2,9 +2,9 @@
 
 - name: Foreman Prerequisites
   gather_facts: true
+  remote_user: root
   hosts:
     - foreman
-
   tasks:
     - name: Create foreman group
       ansible.builtin.group:

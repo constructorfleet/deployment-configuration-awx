@@ -2,6 +2,7 @@
 
 - name: AWX Install/Configure
   gather_facts: true
+  remote_user: root
   hosts:
     - awx
   vars:
