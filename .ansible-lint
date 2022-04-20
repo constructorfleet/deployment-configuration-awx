@@ -21,6 +21,7 @@ mock_roles:
   - theforeman.operations.ansible_repositories
   - theforeman.operations.puppet_repositories
   - theforeman.operations.installer
+  - awx.awx.organization
   - docker
 
 # Enable checking of loop variable prefixes in roles
