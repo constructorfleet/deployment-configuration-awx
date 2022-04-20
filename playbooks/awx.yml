@@ -77,7 +77,7 @@
     - name: Configure AWX
       block:
         - name: Create AWX Organizations
-          awx.awx.tower_organization:
+          awx.awx.organization:
             name: "{{ item.name }}"
             state: "{{ item.state | default('present') }}"
             validate_certs: no
@@ -89,7 +89,7 @@
             label: '{{ item.name }}'
 
         - name: Create AWX Inventories
-          awx.awx.tower_inventory:
+          awx.awx.inventory:
             name: '{{ inventory.name }}'
             description: '{{ inventory.description | default(omit) }}'
             organization: '{{ inventory.organization }}'
@@ -117,7 +117,7 @@
             label: '{{ inv_plugin.name }}'
 
         - name: Create AWX Inventory Sources
-          awx.awx.tower_inventory_source:
+          awx.awx.inventory_source:
             name: '{{ inv_source.name }}'
             description: '{{ inv_source.description | default(omit) }}'
             inventory: '{{ inv_source.inventory_name }}'
@@ -144,7 +144,7 @@
             label: '{{ inv_source.name }}'
 
         - name: Create Additional Tower Credential Types
-          awx.awx.tower_credential_type:
+          awx.awx.credential_type:
             name: "{{ item.name }}"
             description: "{{ item.description | default(omit) }}"
             kind: "{{ item.kind }}"
@@ -160,7 +160,7 @@
             label: "{{ item.name }}"
 
         - name: Create Tower credentials
-          awx.awx.tower_credential:
+          awx.awx.credential:
             name: "{{ item.name }}"
             organization: "{{ item.organization | default('Default') }}"
             state: "{{ item.state | default('present') }}"
@@ -189,7 +189,7 @@
 #
 #
 #        - name: Setup Foreman Dynamic Inventory
-#          awx.awx.tower_inventory:
+#          awx.awx.inventory:
 #            name: '{{ item.name }}'
 #            description: '{{ item.description | default(omit) }}'
 #            organization: 'Default'
@@ -205,7 +205,7 @@
 #            label: '{{ item.name }}'
 
     #    - name: Add projects to Tower
-    #      awx.awx.tower_project:
+    #      awx.awx.project:
     #        name: "{{ item.name }}"
     #        description: "{{ item.description | default(omit) }}"
     #        scm_type: "{{ item.scm_type | default(omit) }}"
