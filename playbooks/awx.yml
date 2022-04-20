@@ -52,7 +52,7 @@
         - awx-task
 
     - name: Create AWX Organizations
-      awx.awx.organization:  # noqa
+      awx.awx.tower_organization:  # noqa
         name: "{{ item.name }}"
         state: "{{ item.state | default('present') }}"
         validate_certs: no
