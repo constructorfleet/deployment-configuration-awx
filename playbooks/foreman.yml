@@ -58,35 +58,20 @@
       loop:
         - id_rsa_foreman_proxy
         - id_rsa_foreman_proxy.pub
-
-- name: Install Foreman
-  gather_facts: true
-  hosts:
-    - foreman
-  vars:
-    foreman_installer_options: "{{ ([''] + foreman_options) | join(' --') | split(' ') | reject('eq', '') | list }}"
-  roles:
-    - name: theforeman.operations.foreman_repositories
-    - name: theforeman.operations.ansible_repositories
-      when:
-        - ansible_os_family|lower != 'debian'
-    - name: theforeman.operations.puppet_repositories
-    - name: theforeman.operations.installer
-
-  tasks:
-    - name: "Ensure foreman SSH directory exists"
-      ansible.builtin.file:
-        path: /home/foreman/.ssh
-        state: directory
-
-    - name: "Copy Foreman SSH key files"
-      ansible.builtin.copy:
-        src: '{{ item }}'
-        dest: '/home/foreman/.ssh/{{ item }}'
-        decrypt: true
-      loop:
-        - id_rsa.foreman
-        - id_rsa.foreman.pub
+    - name: test
+      block:
+        - ansible.builtin.include_role:
+            name: theforeman.operations.foreman_repositories
+        - ansible.builtin.include_role:
+            name: theforeman.operations.ansible_repositories
+          when:
+            - ansible_os_family|lower != 'debian'
+        - ansible.builtin.include_role:
+            name: theforeman.operations.puppet_repositories
+        - ansible.builtin.include_role:
+            name: theforeman.operations.installer
+      vars:
+        foreman_installer_options: "{{ ([''] + foreman_options) | join(' --') | split(' ') | reject('eq', '') | list }}"
 
     - name: "Update global parameters"
       theforeman.foreman.global_parameter:
