@@ -1,7 +1,7 @@
 ---
 
 plugin: theforeman.foreman.foreman
-url: 'https://testvm1.home.prettybaked.com'
+url: 'https://{{ inventory_hostname }}'
 user: !vault |
           $ANSIBLE_VAULT;1.1;AES256
           64386661616265363933633363626539653839313038356135376662393937636633303032366433
