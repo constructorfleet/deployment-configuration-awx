@@ -1,16 +1,19 @@
 all:
   children:
-    dev:
-      hosts:
-        dev-build.home.prettybaked.com:
-          ansible_ssh_host: 10.0.10.148
-    prod:
-      hosts:
     foreman:
-      children:
-        dev:
-        prod:
+      hosts:
+        buildservices01.home.prettybaked.com:
+        dev-build.home.prettybaked.com:
     awx:
-      children:
-        dev:
-        prod:
+      hosts:
+        buildservices01.home.prettybaked.com:
+        dev-build.home.prettybaked.com:
+
+dev:
+  hosts:
+    dev-build.home.prettybaked.com:
+      ansible_ssh_host: 10.0.10.151
+prod:
+  hosts:
+    buildservices01.home.prettybaked.com:
+      ansible_ssh_host: 10.0.10.25
