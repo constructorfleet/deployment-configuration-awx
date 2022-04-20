@@ -47,42 +47,30 @@
           vars:
             docker_compose_projects: "{{ awx_compose_project }}"
 
+        - name: Check AWX Installation Complete via Ping API
+          ansible.builtin.uri:
+            url: '{{ awx_server_url }}/api/v2/ping'
+          retries: 300
+          delay: 5
+          until: awx_ping_result.status == 200
+          register: awx_ping_result
+          changed_when: '{{ awx_ping_result.status == 200 }}'
+          no_log: false
+          ignore_errors: true
+
+        - name: Assert AWX Install/Upgrade Complete
+          ansible.builtin.assert:
+            that:
+              - '{{ awx_ping_result is not failed }}'
+            fail_msg: 'AWX Install/Upgrade is taking awhile, come back later for configuration.'
+            success_msg: 'AWX Install/Upgrade is complete!'
+
         - name: Update CA trust in awx_web container
           ansible.builtin.command:
             cmd: "docker exec {{ item }} '/usr/bin/update-ca-trust'"
           loop:
             - awx-web
             - awx-task
-
-        - name: Check AWX Installation Complete via Ping API
-          ansible.builtin.uri:
-            url: '{{ awx_server_url }}/api/v2/ping'
-          async: 300
-          poll: 0
-          register: awx_ping_result
-          delegate_to: localhost
-          connection: local
-          no_log: true
-          ignore_errors: true
-
-        - name: Wait for `Check AWX Installation Complete via Ping API` to return
-          ansible.builtin.async_status:
-            jid: '{{ awx_ping_result.ansible_job_id }}'
-          register: awx_complete
-          retries: 300
-          delay: 60
-          until: awx_complete.finished
-          delegate_to: localhost
-          connection: local
-          ignore_errors: true
-          no_log: true
-
-        - name: Assert AWX Install/Upgrade Complete
-          ansible.builtin.assert:
-            that:
-              - '{{ awx_complete is not failed }}'
-            fail_msg: 'AWX Install/Upgrade is taking awhile, come back later for configuration.'
-            success_msg: 'AWX Install/Upgrade is complete!'
       tags:
         - install-awx
 
@@ -122,7 +110,7 @@
           ansible.builtin.copy:
             dest: '{{ inv_plugin.name }}'
             mode: '0777'
-            content: '{{ inv_plugin | dict2items | rejectattr('key', 'eq', 'name') | items2dict| to_nice_yaml }}'
+            content: '{{ inv_plugin | dict2items | rejectattr("key", "eq", "name") | items2dict| to_nice_yaml }}'
           loop: '{{ awx_inventory_plugins | default([]) }}'
           loop_control:
             loop_var: inv_plugin
@@ -198,38 +186,23 @@
             validate_certs: false
             return_content: true
 
-        - name: Synchronize Inventory Scripts
-          awx.awx.tower_send:
-            assets: |
-              asset_type: inventory_script
-              description: {{ item.description }}
-              name: {{ item.name }}
-              organization: {{ item.organization|default('Default') }}
-              script: {{ lookup('file', item.script)|to_json }}
-            validate_certs: no
-            tower_host: "{{ awx_server_url }}"
-            tower_username: "{{ awx_admin_user }}"
-            tower_password: "{{ awx_admin_password }}"
-          loop: "{{ awx_inventory_scripts }}"
-          loop_control:
-            label: "{{ item.name }}"
-          when:
-
-        - name: Setup Foreman Dynamic Inventory
-          awx.awx.tower_inventory:
-            name: '{{ item.name }}'
-            description: '{{ item.description | default(omit) }}'
-            organization: 'Default'
-            #variables: '{{ item.variables | default(omit) }}'
-            state: '{{ item.state | default("present") }}'
-            validate_certs: false
-            tower_host: '{{ awx_server_url }}'
-            tower_username: '{{ awx_admin_user }}'
-            tower_password: '{{ awx_admin_password }}'
-            variables: '{{ item.variables | default(omit) }}'
-          loop: '{{ awx_inventory_sources }}'
-          loop_control:
-            label: '{{ item.name }}'
+#
+#
+#        - name: Setup Foreman Dynamic Inventory
+#          awx.awx.tower_inventory:
+#            name: '{{ item.name }}'
+#            description: '{{ item.description | default(omit) }}'
+#            organization: 'Default'
+#            #variables: '{{ item.variables | default(omit) }}'
+#            state: '{{ item.state | default("present") }}'
+#            validate_certs: false
+#            tower_host: '{{ awx_server_url }}'
+#            tower_username: '{{ awx_admin_user }}'
+#            tower_password: '{{ awx_admin_password }}'
+#            variables: '{{ item.variables | default(omit) }}'
+#          loop: '{{ awx_inventory_sources }}'
+#          loop_control:
+#            label: '{{ item.name }}'
 
     #    - name: Add projects to Tower
     #      awx.awx.tower_project:

@@ -92,7 +92,7 @@ awx_organizations:
 awx_inventories:
   - name: '{{ awx_inventory_name }}'
     description: '{{ awx_inventory_description }}'
-    organization: '{{ awx_organizations | first | attr("name") }}'
+    organization: '{{ (awx_organizations | first)["name"] }}'
 
 awx_inventory_plugins:
   - name: inventory.foreman.yml
@@ -258,6 +258,7 @@ awx_compose_project:
           depends_on:
             - redis
             - postgres
+            - task
           ports:
             - "{{ awx_host_port }}:8052"
           networks:
@@ -291,7 +292,6 @@ awx_compose_project:
           depends_on:
             - redis
             - postgres
-            - web
           networks:
             awx:
               aliases:
