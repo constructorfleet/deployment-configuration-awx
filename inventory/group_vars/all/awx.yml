@@ -21,8 +21,6 @@ awx_notification_email: !vault |
           3230373838663662650a396466393338313964363639326535626432373065353964373132393865
           64363164663336383364636330383631343834326162386538653430366662333237
 
-awx_host_port: 8080
-awx_server_url: "http://{{ ansible_default_ipv4.address }}:{{ awx_host_port }}"
 awx_project_data_dir: /etc/ansible
 awx_postgres_data_dir: /var/lib/pgawx
 
