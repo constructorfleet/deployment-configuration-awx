@@ -76,20 +76,29 @@
 
     - name: Configure AWX
       block:
-        - name: Create AWX Organizations
-          awx.awx.organization:
-            name: "{{ item.name }}"
-            state: "{{ item.state | default('present') }}"
+        - name: Create AWX OAuth Token
+          awx.awx.tower_token:
+            description: Build Server Configuring AWX
+            scope: write
+            state: present
             validate_certs: no
             tower_host: "{{ awx_server_url }}"
             tower_username: "{{ awx_admin_user }}"
             tower_password: "{{ awx_admin_password }}"
+
+        - name: Create AWX Organizations
+          awx.awx.tower_organization:
+            name: "{{ item.name }}"
+            state: "{{ item.state | default('present') }}"
+            validate_certs: no
+            tower_host: "{{ awx_server_url }}"
+            tower_oauthtoken: '{{ tower_token }}'
           loop: '{{ awx_organizations }}'
           loop_control:
             label: '{{ item.name }}'
 
         - name: Create AWX Inventories
-          awx.awx.inventory:
+          awx.awx.tower_inventory:
             name: '{{ inventory.name }}'
             description: '{{ inventory.description | default(omit) }}'
             organization: '{{ inventory.organization }}'
@@ -99,8 +108,7 @@
             state: '{{ inventory.state | default("present") }}'
             validate_certs: no
             tower_host: "{{ awx_server_url }}"
-            tower_username: "{{ awx_admin_user }}"
-            tower_password: "{{ awx_admin_password }}"
+            tower_oauthtoken: '{{ tower_token }}'
           loop: '{{ awx_inventories | default([]) }}'
           loop_control:
             loop_var: inventory
@@ -117,7 +125,7 @@
             label: '{{ inv_plugin.name }}'
 
         - name: Create AWX Inventory Sources
-          awx.awx.inventory_source:
+          awx.awx.tower_inventory_source:
             name: '{{ inv_source.name }}'
             description: '{{ inv_source.description | default(omit) }}'
             inventory: '{{ inv_source.inventory_name }}'
@@ -136,15 +144,14 @@
             state: '{{ inv_source.state | default("present") }}'
             validate_certs: no
             tower_host: "{{ awx_server_url }}"
-            tower_username: "{{ awx_admin_user }}"
-            tower_password: "{{ awx_admin_password }}"
+            tower_oauthtoken: '{{ tower_token }}'
           loop: '{{ awx_inventory_sources | default([]) }}'
           loop_control:
             loop_var: inv_source
             label: '{{ inv_source.name }}'
 
         - name: Create Additional Tower Credential Types
-          awx.awx.credential_type:
+          awx.awx.tower_credential_type:
             name: "{{ item.name }}"
             description: "{{ item.description | default(omit) }}"
             kind: "{{ item.kind }}"
@@ -153,14 +160,13 @@
             state: "{{ item.state | default('present') }}"
             validate_certs: no
             tower_host: "{{ awx_server_url }}"
-            tower_username: "{{ awx_admin_user }}"
-            tower_password: "{{ awx_admin_password }}"
+            tower_oauthtoken: '{{ tower_token }}'
           loop: "{{ awx_credential_types }}"
           loop_control:
             label: "{{ item.name }}"
 
         - name: Create Tower credentials
-          awx.awx.credential:
+          awx.awx.tower_credential:
             name: "{{ item.name }}"
             organization: "{{ item.organization | default('Default') }}"
             state: "{{ item.state | default('present') }}"
@@ -168,8 +174,7 @@
             credential_type: "{{ item.credential_type }}"
             validate_certs: no
             tower_host: "{{ awx_server_url }}"
-            tower_username: "{{ awx_admin_user }}"
-            tower_password: "{{ awx_admin_password }}"
+            tower_oauthtoken: '{{ tower_token }}'
           loop: "{{ awx_credentials }}"
           loop_control:
             label: "{{ item.name }}"
@@ -232,5 +237,17 @@
     #        - awx_projects is defined
     #        - awx_projects != None
     #      changed_when: true
+      always:
+        - name: Delete OAuth Token
+          awx.awx.tower_token:
+            existing_token: '{{ tower_token }}'
+            state: absent
+            validate_certs: no
+            tower_host: "{{ awx_server_url }}"
+            tower_oauthtoken: '{{ tower_token }}'
+            tower_username: "{{ awx_admin_user }}"
+            tower_password: "{{ awx_admin_passward }}"
+          when:
+            - tower_token is defined
       tags:
         - configure-awx
