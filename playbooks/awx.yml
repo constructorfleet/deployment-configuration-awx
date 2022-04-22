@@ -71,6 +71,13 @@
           loop:
             - awx-web
             - awx-task
+
+        - name: Install Tower CLI Python Package
+          ansible.builtin.command:
+            cmd: "docker exec {{ item }} '/usr/bin/python3' '-m' 'pip' 'install' '--upgrade' 'ansible-tower-cli'"
+          loop:
+            - awx-web
+            - awx-task
       tags:
         - install-awx
 
@@ -93,9 +100,38 @@
             validate_certs: no
             tower_host: "{{ awx_server_url }}"
             tower_oauthtoken: '{{ tower_token }}'
-          loop: '{{ awx_organizations }}'
+          loop: '{{ awx_organizations | default([]) }}'
           loop_control:
             label: '{{ item.name }}'
+
+        - name: Create Additional Tower Credential Types
+          awx.awx.tower_credential_type:
+            name: "{{ item.name }}"
+            description: "{{ item.description | default(omit) }}"
+            kind: "{{ item.kind }}"
+            inputs: "{{ item.inputs | default(omit) }}"
+            injectors: "{{ item.injectors | default(omit) }}"
+            state: "{{ item.state | default('present') }}"
+            validate_certs: no
+            tower_host: "{{ awx_server_url }}"
+            tower_oauthtoken: '{{ tower_token }}'
+          loop: "{{ awx_credential_types | default([]) }}"
+          loop_control:
+            label: "{{ item.name }}"
+
+        - name: Create Tower Credentials
+          awx.awx.tower_credential:
+            name: "{{ item.name }}"
+            organization: "{{ item.organization | default('Default') }}"
+            state: "{{ item.state | default('present') }}"
+            inputs: "{{ item.inputs|default(omit) }}"
+            credential_type: "{{ item.credential_type }}"
+            validate_certs: no
+            tower_host: "{{ awx_server_url }}"
+            tower_oauthtoken: '{{ tower_token }}'
+          loop: "{{ awx_credentials | default([]) }}"
+          loop_control:
+            label: "{{ item.name }}"
 
         - name: Create AWX Inventories
           awx.awx.tower_inventory:
@@ -114,32 +150,22 @@
             loop_var: inventory
             label: '{{ inventory.name }}'
 
-        - name: Create AWX Inventory Plugin Source Configurations
-          ansible.builtin.copy:
-            dest: '{{ inv_plugin.name }}'
-            mode: '0777'
-            content: '{{ inv_plugin | dict2items | rejectattr("key", "eq", "name") | items2dict| to_nice_yaml }}'
-          loop: '{{ awx_inventory_plugins | default([]) }}'
-          loop_control:
-            loop_var: inv_plugin
-            label: '{{ inv_plugin.name }}'
-
         - name: Create AWX Inventory Sources
           awx.awx.tower_inventory_source:
             name: '{{ inv_source.name }}'
             description: '{{ inv_source.description | default(omit) }}'
             inventory: '{{ inv_source.inventory_name }}'
-            source: '{{ inv_source.source }}'
+            source: '{{ inv_source.kind }}'
             source_path: '{{ inv_source.path | default(omit) }}'
             source_vars: '{{ inv_source.variables | default(omit) }}'
             enabled_var: '{{ inv_source.enabled.var | default(omit) }}'
             enabled_value: '{{ inv_source.enabled.value | default(omit) }}'
             host_filter: '{{ inv_source.host_filter | default(omit) }}'
-            credential: '{{ inv_source.credential_name | default(omit) }}'
+            credential: '{{ inv_source.credential | default(omit) }}'
             overwrite: '{{ inv_source.overwrite | default(omit) }}'
             overwrite_vars: '{{ inv_source.overwrite_vars | default(omit) }}'
-            update_on_launch: '{{ inv_source.update | default(omit) }}'
-            update_on_project_update: '{{ inv_source.update | default(omit) }}'
+            update_on_launch: '{{ inv_source.update_on_launch | default(True) }}'
+            update_on_project_update: '{{ inv_source.update_on_project | default(omit) }}'
             source_project: '{{ inv_source.project | default(omit) }}'
             state: '{{ inv_source.state | default("present") }}'
             validate_certs: no
@@ -150,46 +176,15 @@
             loop_var: inv_source
             label: '{{ inv_source.name }}'
 
-        - name: Create Additional Tower Credential Types
-          awx.awx.tower_credential_type:
-            name: "{{ item.name }}"
-            description: "{{ item.description | default(omit) }}"
-            kind: "{{ item.kind }}"
-            inputs: "{{ item.inputs | default(omit) }}"
-            injectors: "{{ item.injectors | default(omit) }}"
-            state: "{{ item.state | default('present') }}"
-            validate_certs: no
-            tower_host: "{{ awx_server_url }}"
-            tower_oauthtoken: '{{ tower_token }}'
-          loop: "{{ awx_credential_types }}"
-          loop_control:
-            label: "{{ item.name }}"
-
-        - name: Create Tower Credentials
-          awx.awx.tower_credential:
-            name: "{{ item.name }}"
-            organization: "{{ item.organization | default('Default') }}"
-            state: "{{ item.state | default('present') }}"
-            inputs: "{{ item.inputs|default(omit) }}"
-            credential_type: "{{ item.credential_type }}"
-            validate_certs: no
-            tower_host: "{{ awx_server_url }}"
-            tower_oauthtoken: '{{ tower_token }}'
-          loop: "{{ awx_credentials }}"
-          loop_control:
-            label: "{{ item.name }}"
-
         - name: Update AWX LDAP Settings
-          ansible.builtin.uri:
-            url: "{{ awx_server_url }}/api/v2/settings/all/"
-            user: "{{ awx_admin_user }}"
-            password: "{{ awx_admin_password }}"
-            method: PATCH
-            body: "{{ awx_ldap_settings | items2dict(key_name='name', value_name='value') | default([]) }}"
-            force_basic_auth: true
-            body_format: json
-            validate_certs: false
-            return_content: true
+          awx.awx.tower_settings:
+            settings: "{{ awx_auth_sources_ldap | items2dict(key_name='name', value_name='value') | default([]) }}"
+            validate_certs: no
+            tower_host: "{{ awx_server_url }}"
+            tower_oauthtoken: '{{ tower_token }}'
+          when:
+            - awx_auth_sources_ldap is defined
+            - awx_auth_sources_ldap is sequence
 
         - name: Add projects to Tower
           awx.awx.tower_project:
@@ -208,7 +203,7 @@
             validate_certs: no
             tower_host: "{{ awx_server_url }}"
             tower_oauthtoken: '{{ tower_token }}'
-          loop: "{{ awx_projects }}"
+          loop: "{{ awx_projects | default([]) }}"
           loop_control:
             loop_var: project
             label: "{{ project.name }}"
