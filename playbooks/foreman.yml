@@ -155,7 +155,7 @@
           loop_control:
             loop_var: os
             label: '{{ os.name }}'
-      environment:
+      environment:  # theforeman.foreman collection does not utilize no_log on password argument - set ENV instead
         FOREMAN_SERVER_URL: '{{ foreman_server_url }}'
         FOREMAN_USERNAME: '{{ foreman_username }}'
         FOREMAN_PASSWORD: '{{ foreman_password }}'
