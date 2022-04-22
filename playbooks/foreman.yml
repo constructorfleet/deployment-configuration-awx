@@ -42,11 +42,7 @@
             name: "{{ item.name }}"
             value: "{{ item.value }}"
             parameter_type: "{{ item.parameter_type | default('string') }}"
-            server_url: '{{ foreman_server_url }}'
-            username: '{{ foreman_username }}'
-            password: '{{ foreman_password }}'
-            validate_certs: false
-            state: present
+            state: "{{ item.state | default('present') }}"
           loop: '{{ foreman_global_parameters }}'
           loop_control:
             label: '{{ item.name }}: {{ item.value }}'
@@ -66,11 +62,7 @@
             roles: '{{ usergroup.roles | default(omit) }}'
             users: '{{ usergroup.users | default(omit) }}'
             usergroups: '{{ usergroups.usergroups | default(omit) }}'
-            server_url: '{{ foreman_server_url }}'
-            username: '{{ foreman_username }}'
-            password: '{{ foreman_password }}'
             state: '{{ usergroup.state | default("present") }}'
-            validate_certs: false
           loop: '{{ foreman_usergroups.internal }}'
           loop_control:
             loop_var: usergroup
@@ -81,11 +73,7 @@
             name: '{{ usergroup.name }}'
             auth_source_ldap: '{{ usergroup.auth_source }}'
             usergroup: '{{ usergroup.usergroup }}'
-            server_url: '{{ foreman_server_url }}'
-            username: '{{ foreman_username }}'
-            password: '{{ foreman_password }}'
             state: '{{ usergroup.state | default("present") }}'
-            validate_certs: false
           loop: '{{ foreman_usergroups.external }}'
           loop_control:
             loop_var: usergroup
@@ -97,11 +85,7 @@
             description: '{{ domain.description | default(domain.name) }}'
             parameters: '{{ domain.parameters | default(omit) }}'
             dns_proxy: '{{ (domain.dns_proxy | default(omit)) if (foreman_proxy_dns | default(False)) else omit }}'
-            server_url: '{{ foreman_server_url }}'
-            username: '{{ foreman_username }}'
-            password: '{{ foreman_password }}'
             state: '{{ doman.state | default("present") }}'
-            validate_certs: false
           loop: '{{ foreman_domains | default([]) }}'
           loop_control:
             loop_var: domain
@@ -133,11 +117,7 @@
             dns_proxy: "{{ (subnet.dns_proxy | default(omit)) if (foreman_proxy_tftp | default(False)) else omit }}"
             httpboot_proxy: "{{ (subnet.httpboot_proxy | default(omit)) if (foreman_proxy_tftp | default(False)) else omit }}"
             remote_execution_proxies: "{{ (subnet.remote_execution_proxies | default(omit)) if (foreman_proxy_remote_exec | default(False)) else omit }}"
-            server_url: "{{ foreman_server_url }}"
-            username: "{{ foreman_username }}"
-            password: "{{ foreman_password }}"
             state: '{{ subnet.state | default("present") }}'
-            validate_certs: false
           loop: '{{ foreman_subnets | default([]) }}'
           loop_control:
             loop_var: subnet
@@ -150,11 +130,7 @@
             path: "{{ installation_media.path | default(omit) }}"
             organizations: "{{ installation_media.organizations | default(foreman_organization) }}"
             locations: "{{ installation_media.locations | default(foreman_location) }}"
-            server_url: "{{ foreman_server_url }}"
-            username: "{{ foreman_username }}"
-            password: "{{ foreman_password }}"
             state: '{{ installation_media.state | default("present") }}'
-            validate_certs: false
           loop: '{{ foreman_installation_media | default([]) }}'
           loop_control:
             loop_var: installation_media
@@ -172,16 +148,17 @@
             provisioning_templates: "{{ os.provisioning_templates | default(omti) }}"
             ptables: "{{ os.partition_tables | default(omit) }}"
             architectures: "{{ os.architectures }}"
-            password_hash: "{{ os.passsword_hash | default('SHA256') }}"
+            password_hash: "{{ os.passsword_hash | default('SHA256') }}"  # noqa no-log-password
             parameters: "{{ os.parameters | default(omit) }}"
-            server_url: "{{ foreman_server_url }}"
-            username: "{{ foreman_username }}"
-            password: "{{ foreman_password }}"
             state: '{{ os.state | default("present") }}'
-            validate_certs: false
           loop: '{{ foreman_operating_systems | default([]) }}'
           loop_control:
             loop_var: os
             label: '{{ os.name }}'
+      environment:
+        FOREMAN_SERVER_URL: '{{ foreman_server_url }}'
+        FOREMAN_USERNAME: '{{ foreman_username }}'
+        FOREMAN_PASSWORD: '{{ foreman_pasword }}'
+        FOREMAN_VALIDATE_CERTS: false
       tags:
         - configure-foreman

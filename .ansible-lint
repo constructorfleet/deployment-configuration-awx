@@ -12,6 +12,7 @@ exclude_paths:
 - roles/
 - collections/
 - playbooks/awx_configure.yml
+
 parseable: true
 # quiet: true
 verbosity: 1
@@ -59,13 +60,13 @@ skip_list:
   - command-instead-of-module
   - command-instead-of-shell
 
-#rules:
-#  truthy:
-#    allowed-values:
-#      - yes
-#      - no
-#      - true
-#      - false
+rules:
+  truthy:
+    allowed-values:
+      - yes
+      - no
+      - true
+      - false
 
 # Any rule that has the 'opt-in' tag will not be loaded unless its 'id' is
 # mentioned in the enable_list:
