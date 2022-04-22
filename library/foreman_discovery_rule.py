@@ -97,22 +97,34 @@ entity:
   type: dict
 '''
 
-from ansible_collections.theforeman.foreman.plugins.module_utils.foreman_helper import ForemanEntityAnsibleModule
+from ansible_collections.theforeman.foreman.plugins.module_utils.foreman_helper import ForemanTaxonomicEntityAnsibleModule
 
 
 LOOKUP_RESOURCES = [
-    'organization',
-    'location',
-    'hostgroup',
+    {
+        'param': 'organizations',
+        'resource': 'organizations',
+        'result': 'organization_ids',
+    },
+    {
+        'param': 'locations',
+        'resource': 'locations',
+        'result': 'location_ids',
+    },
+    {
+        'param': 'hostgroup',
+        'resource': 'hostgroups',
+        'result': 'hostgroup_id',
+    }
 ]
 
 
-class ForemanDiscoveryRuleAnsibleModule(ForemanEntityAnsibleModule):
+class ForemanDiscoveryRuleModule(ForemanTaxonomicEntityAnsibleModule):
     pass
 
 
 def main():
-    module = ForemanDiscoveryRuleAnsibleModule(
+    module = ForemanDiscoveryRuleModule(
         argument_spec=dict(
             updated_name=dict(),
         ),
@@ -120,10 +132,10 @@ def main():
             name=dict(required=True),
             search=dict(required=True),
             hostgroup=dict(type='entity', required=True, ensure=True),
-            location=dict(type='entity', required=False, ensure=True),
-            organization=dict(type='entity', required=False, ensure=True),
+            locations=dict(type='entity_list', required=True, ensure=True),
+            organizations=dict(type='entity_list', required=True, ensure=True),
             priority=dict(),
-            enabled=dict(),
+            enabled=dict(type=bool, required=False, default=True),
             hostname=dict(),
             max_count=dict(),
         ),
@@ -133,25 +145,34 @@ def main():
     module_params = module.foreman_params
 
     with module.api_connection():
-        for resource_type in LOOKUP_RESOURCES:
-            if resource_type not in module_params:
-                msg = "Missing required argument '{0}'".format(resource_type)
+        for resource in LOOKUP_RESOURCES:
+            if resource['param'] not in module_params:
+                msg = "Missing required argument '{0}'".format(resource['param'])
                 module.fail_json(msg=msg)
 
-            resource = "{0}s".format(resource_type)
-            if resource not in module.foremanapi.resources:
+            if resource['resource'] not in module.foremanapi.resources:
                 msg = "Resource '{0}' does not exist in the API. Existing resources: {1}".format(
-                    resource,
+                    resource['resource'],
                     ', '.join(sorted(module.foremanapi.resources))
                 )
                 module.fail_json(msg=msg)
-            resource_name = module_params.pop(resource_type)
-            param_name = "{0}_id".format(resource_type)
-            module_params[param_name] = module.find_resource_by_name(
-                resource,
-                resource_name,
-                thin=True
-            )['id']
+            resource_name = module_params.pop(resource['param'])
+            if isinstance(resource_name, list):
+                module_params[resource['result']] = [
+                    item['id']
+                    for item
+                    in module.find_resources_by_name(
+                        resource['resource'],
+                        resource_name,
+                        thin=True
+                    )
+                ]
+            else:
+                module_params[resource['result']] = module.find_resource_by_name(
+                    resource['resource'],
+                    resource_name,
+                    thin=True
+                )['id']
 
         entity = module.run()
 

@@ -537,3 +537,16 @@ foreman_operating_systems:
       - name: selinux-mode
         parameter_type: string
         value: "disabled"
+
+foreman_hostgroups:
+  - name: physical
+    description: Physical resources
+
+foreman_discovery_rules:
+  - name: DiscoverPhysicalHosts
+    organizations: '{{ foreman_organization }}'
+    locations: '{{ foreman_location }}'
+    search: 'virtual=physical'
+    hostgroup: physical
+    enabled: true
+
