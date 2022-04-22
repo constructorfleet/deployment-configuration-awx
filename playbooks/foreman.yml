@@ -15,15 +15,19 @@
           loop_control:
             loop_var: foreman_user_group
             label: '{{ foreman_user_group.name }}'
-        - ansible.builtin.include_role:
+        - name: Add Foreman Repositories
+          ansible.builtin.include_role:
             name: theforeman.operations.foreman_repositories
-        - ansible.builtin.include_role:
+        - name: Add Ansible Repositories
+          ansible.builtin.include_role:
             name: theforeman.operations.ansible_repositories
           when:
             - ansible_os_family | lower != 'debian'
-        - ansible.builtin.include_role:
+        - name: Add Puppet Repositories
+          ansible.builtin.include_role:
             name: theforeman.operations.puppet_repositories
-        - ansible.builtin.include_role:
+        - name: Install Foreman
+          ansible.builtin.include_role:
             name: theforeman.operations.installer
           vars:
             update_cache: true
