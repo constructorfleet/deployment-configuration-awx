@@ -39,12 +39,9 @@ foreman_users_groups:
             mode: '0644'
 
 foreman_options:
-  - enable-foreman-cli-ansible
   - enable-foreman-cli-discovery
   - enable-foreman-compute-libvirt
-  - enable-foreman-plugin-ansible
   - enable-foreman-plugin-discovery
-  - enable-foreman-proxy-plugin-ansible
   - enable-foreman-proxy-plugin-discovery
   - 'foreman-initial-admin-username={{ foreman_username }}'
   - 'foreman-initial-admin-password={{ foreman_password }}'

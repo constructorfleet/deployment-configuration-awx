@@ -188,6 +188,10 @@ awx_inventory_sources:
     kind: satellite6
     verbosity: 2
     update_on_launch: true
+    variables:
+      want_facts: true
+      want_ostcollections: false
+      want_params: true
 
 awx_credentials:
   - name: ansible-root
