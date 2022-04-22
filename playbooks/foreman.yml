@@ -90,5 +90,98 @@
           loop_control:
             loop_var: usergroup
             label: '{{ usergroup.name }}'
+
+        - name: Configure Foreman Domains
+          theforeman.foreman.domain:
+            name: '{{ domain.name }}'
+            description: '{{ domain.description | default(domain.name) }}'
+            parameters: '{{ domain.parameters | default(omit) }}'
+            dns_proxy: '{{ (domain.dns_proxy | default(omit)) if (foreman_proxy_dns | default(False)) else omit }}'
+            server_url: '{{ foreman_server_url }}'
+            username: '{{ foreman_username }}'
+            password: '{{ foreman_password }}'
+            state: '{{ doman.state | default("present") }}'
+            validate_certs: false
+          loop: '{{ foreman_domains | default([]) }}'
+          loop_control:
+            loop_var: domain
+            label: '{{ domain.name }}'
+
+        - name: Configure Foreman Subnets
+          theforeman.foreman.subnet:
+            name: "{{ subnet.name }}"
+            description: "{{ subnet.description | default(subnet.name) }}"
+            network: "{{ subnet.network }}"
+            mask: "{{ subnet.mask | default(omit) }}"
+            cidr: "{{ subnet.cidr | default(omit) }}"
+            gateway: "{{ subnet.gateway }}"
+            from_ip: "{{ subnet.from_ip | default(omit) }}"
+            to_ip: "{{ subnet.to_ip | default(omit) }}"
+            ipam: "{{ subnet.ipam | default(omit) }}"
+            dns_primary: "{{ subnet.dns_primary | default(omit) }}"
+            dns_secondary: "{{ subnet.dns_secondary | default(omit) }}"
+            boot_mode: "{{ subnet.boot_mode | default('Static') }}"
+            domains: "{{ subnet.domains | default(omit) }}"
+            vlanid: "{{ subnet.vlanid | default(omit) }}"
+            mtu: "{{ subnet.mtu | default(1500) }}"
+            parameters: "{{ subnet.parameters | default(omit) }}"
+            organizations: "{{ subnet.organizations | default(foreman_organization) }}"
+            locations: "{{ subnet.locations | default(foreman_location) }}"
+            discovery_proxy: "{{ (subnet.discovery_proxy | default(omit)) if (foreman_proxy_dhcp | default(False)) else omit }}"
+            dhcp_proxy: "{{ (subnet.dhcp_proxy | default(omit)) if (foreman_proxy_dhcp | default(False)) else omit }}"
+            tftp_proxy: "{{ (subnet.tftp_proxy | default(omit)) if (foreman_proxy_tftp | default(False)) else omit }}"
+            dns_proxy: "{{ (subnet.dns_proxy | default(omit)) if (foreman_proxy_tftp | default(False)) else omit }}"
+            httpboot_proxy: "{{ (subnet.httpboot_proxy | default(omit)) if (foreman_proxy_tftp | default(False)) else omit }}"
+            remote_execution_proxies: "{{ (subnet.remote_execution_proxies | default(omit)) if (foreman_proxy_remote_exec | default(False)) else omit }}"
+            server_url: "{{ foreman_server_url }}"
+            username: "{{ foreman_username }}"
+            password: "{{ foreman_password }}"
+            state: '{{ subnet.state | default("present") }}'
+            validate_certs: false
+          loop: '{{ foreman_subnets | default([]) }}'
+          loop_control:
+            loop_var: subnet
+            label: '{{ subnet.name }}'
+
+        - name: Configrue Foreman Installation Media
+          theforeman.foreman.installation_medium:
+            name: "{{ installation_media.name }}"
+            os_family: "{{ installation_media.os_family }}"
+            path: "{{ installation_media.path | default(omit) }}"
+            organizations: "{{ installation_media.organizations | default(foreman_organization) }}"
+            locations: "{{ installation_media.locations | default(foreman_location) }}"
+            server_url: "{{ foreman_server_url }}"
+            username: "{{ foreman_username }}"
+            password: "{{ foreman_password }}"
+            state: '{{ installation_media.state | default("present") }}'
+            validate_certs: false
+          loop: '{{ foreman_installation_media | default([]) }}'
+          loop_control:
+            loop_var: installation_media
+            label: '{{ installation_media.name }}'
+
+        - name: Configrue Foreman Operating Systems
+          theforeman.foreman.operatingsystem:
+            name: "{{ os.name }}"
+            description: "{{ os.description | default(os.name) }}"
+            release_name: "{{ os.release_name | default(omit) }}"
+            os_family: "{{ os.family }}"
+            major: "{{ os.major }}"
+            minor: "{{ os.minor }}"
+            media: "{{ os.media }}"
+            provisioning_templates: "{{ os.provisioning_templates | default(omti) }}"
+            ptables: "{{ os.partition_tables | default(omit) }}"
+            architectures: "{{ os.architectures }}"
+            password_hash: "{{ os.passsword_hash | default('SHA256') }}"
+            parameters: "{{ os.parameters | default(omit) }}"
+            server_url: "{{ foreman_server_url }}"
+            username: "{{ foreman_username }}"
+            password: "{{ foreman_password }}"
+            state: '{{ os.state | default("present") }}'
+            validate_certs: false
+          loop: '{{ foreman_operating_systems | default([]) }}'
+          loop_control:
+            loop_var: os
+            label: '{{ os.name }}'
       tags:
         - configure-foreman

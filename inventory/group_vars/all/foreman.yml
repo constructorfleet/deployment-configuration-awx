@@ -162,3 +162,378 @@ foreman_organizations:
   - name: '{{ foreman_organization }}'
     locations:
       - name: '{{ foreman_location}}'
+
+foreman_domains:
+  - name: dev.prettybaked.com
+    description: Development Domain
+
+foreman_subnets:
+  - name: 10.0.100.0/24
+    description: Development subnet representation of VLAN 10
+    network: 10.0.100.0
+    vlanid: 100
+    mask: 255.255.255.0
+    gateway: 10.0.100.1
+    boot_mode: DHCP
+    domains:
+      - dev.prettybaked.com
+    dns_primary: 10.0.100.1
+    dns_secondary: 4.2.2.1
+  - name: 10.0.102.0/23
+    description: Development subnet representation of VLAN 12
+    network: 10.0.102.0
+    vlanid: 102
+    mask: 255.255.254.0
+    gateway: 10.0.102.1
+    boot_mode: DHCP
+    domains:
+      - dev.prettybaked.com
+    dns_primary: 10.0.102.1
+    dns_secondary: 4.2.2.1
+  - name: 10.0.104.0/24
+    description: Development subnet representation of VLAN 14
+    network: 10.0.104.0
+    vlanid: 104
+    mask: 255.255.255.0
+    gateway: 10.0.104.1
+    boot_mode: DHCP
+    domains:
+      - dev.prettybaked.com
+    dns_primary: 10.0.104.1
+    dns_secondary: 4.2.2.1
+
+foreman_installation_media:
+  - name: CentOS 8 mirror
+    os_family: Redhat
+    state: absent
+  - name: CentOS 9 Stream
+    os_family: Redhat
+    path: http://mirror.stream.centos.org/$major-stream/BaseOS/$arch/os
+
+foreman_operating_systems:
+  - name: "Ubuntu"
+    description: "Ubuntu 18.04.3 LTS"
+    release_name: "bionic"
+    family: "Debian"
+    major: "18"
+    minor: "04.3"
+    provisioning_templates:
+      - "Preseed default iPXE"
+      - "Preseed default"
+      - "Preseed default PXELinux"
+      - "Preseed default finish"
+      - "Preseed default user data"
+    partion_tables:
+      - "Preseed default"
+      - "Preseed default LVM"
+    architectures:
+      - x86_64
+    media: "Ubuntu mirror"
+    parameters:
+      - name: additional-packages
+        parameter_type: yaml
+        value:
+          - curl
+          - net-tools
+          - ethtool
+      - name: kernel_params
+        parameter_type: string
+        value: "console=ttyS1,115200n8 console=tty1 net.ifnames=0 biosdevname=0 nosplash"
+      - name: partitioning-type
+        parameter_type: string
+        value: "general"
+      - name: partitioning-recipe
+        parameter_type: string
+        value: "atomic"
+  - name: "Ubuntu"
+    description: "Ubuntu 18.04.2 LTS"
+    release_name: "bionic"
+    family: "Debian"
+    major: "18"
+    minor: "04.2"
+    provisioning_templates:
+      - "Preseed default iPXE"
+      - "Preseed default"
+      - "Preseed default PXELinux"
+      - "Preseed default finish"
+      - "Preseed default user data"
+    partition_tables:
+      - "Preseed default"
+      - "Preseed default LVM"
+    architectures:
+      - x86_64
+    media: "Ubuntu mirror"
+    parameters:
+      - name: additional-packages
+        parameter_type: yaml
+        value:
+          - curl
+          - net-tools
+          - ethtool
+      - name: kernel_params
+        parameter_type: string
+        value: "console=ttyS1,115200n8 console=tty1 net.ifnames=0 biosdevname=0 nosplash"
+      - name: partitioning-type
+        parameter_type: string
+        value: "general"
+      - name: partitioning-recipe
+        parameter_type: string
+        value: "atomic"
+  - name: "Ubuntu"
+    description: "Ubuntu 18.04"
+    release_name: "bionic"
+    family: "Debian"
+    major: "18"
+    minor: "04"
+    provisioning_templates:
+      - "Preseed default iPXE"
+      - "Preseed default"
+      - "Preseed default PXELinux"
+      - "Preseed default finish"
+      - "Preseed default user data"
+    partition_tables:
+      - "Preseed default"
+      - "Preseed default LVM"
+    architectures:
+      - x86_64
+    media: "Ubuntu mirror"
+    parameters:
+      - name: additional-packages
+        parameter_type: yaml
+        value:
+          - curl
+          - net-tools
+          - ethtool
+      - name: kernel_params
+        parameter_type: string
+        value: "console=ttyS1,115200n8 console=tty1 net.ifnames=0 biosdevname=0 nosplash"
+      - name: partitioning-type
+        parameter_type: string
+        value: "general"
+      - name: partitioning-recipe
+        parameter_type: string
+        value: "atomic"
+  - name: "Ubuntu"
+    description: "Ubuntu 20.04"
+    release_name: "focal"
+    family: "Debian"
+    major: "20"
+    minor: "04"
+    provisioning_templates:
+      - "Preseed default iPXE"
+      - "Preseed default"
+      - "Preseed default PXELinux"
+      - "Preseed default finish"
+      - "Preseed default user data"
+    partion_tables:
+      - "Preseed default"
+      - "Preseed default LVM"
+    architectures:
+      - x86_64
+    media: "Ubuntu mirror"
+    parameters:
+      - name: additional-packages
+        parameter_type: yaml
+        value:
+          - curl
+          - net-tools
+          - ethtool
+      - name: kernel_params
+        parameter_type: string
+        value: "console=ttyS1,115200n8 console=tty1 net.ifnames=0 biosdevname=0 nosplash"
+      - name: partitioning-type
+        parameter_type: string
+        value: "general"
+      - name: partitioning-recipe
+        parameter_type: string
+        value: "atomic"
+  - name: "CentOS"
+    description: "CentOS 7.7"
+    family: "Redhat"
+    major: "7"
+    minor: "7"
+    provisioning_templates:
+      - "Kickstart default iPXE"
+      - "Kickstart default"
+      - "Kickstart default PXELinux"
+      - "Kickstart default finish"
+      - "Kickstart default user data"
+    partion_tables:
+      - "Kickstart default"
+      - "Kickstart default thin"
+    architectures:
+      - x86_64
+    media: "CentOS 7 mirror"
+    parameters:
+      - name: additional-packages
+        parameter_type: yaml
+        value:
+          - net-tools
+          - redhat-lsb
+      - name: autopart_options
+        parameter_type: string
+        value: "--type=plain --nohome --fstype=ext4"
+      - name: kernel_params
+        parameter_type: string
+        value: "console=ttyS1,115200n8 console=tty1 net.ifnames=0 biosdevname=0"
+      - name: selinux-mode
+        parameter_type: string
+        value: "disabled"
+  - name: "CentOS"
+    description: "CentOS 8.0"
+    family: "Redhat"
+    major: "8"
+    minor: "0"
+    provisioning_templates:
+      - "Kickstart default iPXE"
+      - "Kickstart default"
+      - "Kickstart default PXELinux"
+      - "Kickstart default finish"
+      - "Kickstart default user data"
+    partion_tables:
+      - "Kickstart default"
+      - "Kickstart default thin"
+    architectures:
+      - x86_64
+    media: "CentOS Stream"
+    parameters:
+      - name: additional-packages
+        parameter_type: yaml
+        value:
+          - net-tools
+          - redhat-lsb
+      - name: autopart_options
+        parameter_type: string
+        value: "--type=plain --nohome --fstype=ext4"
+      - name: kernel_params
+        parameter_type: string
+        value: "console=ttyS1,115200n8 console=tty1 net.ifnames=0 biosdevname=0"
+      - name: selinux-mode
+        parameter_type: string
+        value: "disabled"
+  - name: "CentOS"
+    description: "CentOS 8.1"
+    family: "Redhat"
+    major: "8"
+    minor: "1"
+    provisioning_templates:
+      - "Kickstart default iPXE"
+      - "Kickstart default"
+      - "Kickstart default PXELinux"
+      - "Kickstart default finish"
+      - "Kickstart default user data"
+    partition_tables:
+      - "Kickstart default"
+      - "Kickstart default thin"
+    architectures:
+      - x86_64
+    media: "CentOS Stream"
+    parameters:
+      - name: additional-packages
+        parameter_type: yaml
+        value:
+          - net-tools
+          - redhat-lsb
+      - name: autopart_options
+        parameter_type: string
+        value: "--type=plain --nohome --fstype=ext4"
+      - name: kernel_params
+        parameter_type: string
+        value: "console=ttyS1,115200n8 console=tty1 net.ifnames=0 biosdevname=0"
+      - name: selinux-mode
+        parameter_type: string
+        value: "disabled"
+  - name: "CentOS"
+    description: "CentOS Linux release 8.2.2004 (Core)"
+    family: "Redhat"
+    major: "8"
+    minor: "2.2004"
+    provisioning_templates:
+      - "Kickstart default iPXE"
+      - "Kickstart default"
+      - "Kickstart default PXELinux"
+      - "Kickstart default finish"
+      - "Kickstart default user data"
+    partition_tables:
+      - "Kickstart default"
+      - "Kickstart default thin"
+    architectures:
+      - x86_64
+    media: "CentOS Stream"
+    parameters:
+      - name: additional-packages
+        parameter_type: yaml
+        value:
+          - net-tools
+          - redhat-lsb
+      - name: autopart_options
+        parameter_type: string
+        value: "--type=plain --nohome --fstype=ext4"
+      - name: kernel_params
+        parameter_type: string
+        value: "console=ttyS1,115200n8 console=tty1 net.ifnames=0 biosdevname=0"
+      - name: selinux-mode
+        parameter_type: string
+        value: "disabled"
+  - name: "CentOS"
+    description: "CentOS Linux release 8.4.2105"
+    family: "Redhat"
+    major: "8"
+    minor: "4.2105"
+    provisioning_templates:
+      - "Kickstart default iPXE"
+      - "Kickstart default"
+      - "Kickstart default PXELinux"
+      - "Kickstart default finish"
+      - "Kickstart default user data"
+    partition_tables:
+      - "Kickstart default"
+    architectures:
+      - x86_64
+    media: "CentOS Stream"
+    parameters:
+      - name: additional-packages
+        parameter_type: yaml
+        value:
+          - net-tools
+          - redhat-lsb
+      - name: autopart_options
+        parameter_type: string
+        value: "--type=plain --nohome --fstype=ext4"
+      - name: kernel_params
+        parameter_type: string
+        value: "console=ttyS1,115200n8 console=tty1 net.ifnames=0 biosdevname=0"
+      - name: selinux-mode
+        parameter_type: string
+        value: "disabled"
+  - name: "CentOS"
+    description: "CentOS 9"
+    family: "Redhat"
+    major: "9"
+    minor: "0"
+    provisioning_templates:
+      - "Kickstart default iPXE"
+      - "Kickstart default"
+      - "Kickstart default PXELinux"
+      - "Kickstart default finish"
+      - "Kickstart default user data"
+    partition_tables:
+      - "Kickstart default"
+    architectures:
+      - x86_64
+    media: "CentOS 9 Stream"
+    parameters:
+      - name: additional-packages
+        parameter_type: yaml
+        value:
+          - net-tools
+          - redhat-lsb
+      - name: autopart_options
+        parameter_type: string
+        value: "--type=plain --nohome --fstype=ext4"
+      - name: kernel_params
+        parameter_type: string
+        value: "console=ttyS1,115200n8 console=tty1 net.ifnames=0 biosdevname=0"
+      - name: selinux-mode
+        parameter_type: string
+        value: "disabled"
