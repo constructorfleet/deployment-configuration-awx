@@ -206,8 +206,8 @@ awx_credentials:
   - name: Foreman
     credential_type: Red Hat Satellite 6
     inputs:
-      password: "{{ foreman_username }}"
-      username: "{{ foreman_password }}"
+      username: "{{ foreman_username }}"
+      password: "{{ foreman_password }}"
       host: "https://10.0.10.151"
 
 awx_ldap_settings:
