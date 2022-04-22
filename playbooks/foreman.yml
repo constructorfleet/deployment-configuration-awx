@@ -158,7 +158,7 @@
       environment:
         FOREMAN_SERVER_URL: '{{ foreman_server_url }}'
         FOREMAN_USERNAME: '{{ foreman_username }}'
-        FOREMAN_PASSWORD: '{{ foreman_pasword }}'
+        FOREMAN_PASSWORD: '{{ foreman_password }}'
         FOREMAN_VALIDATE_CERTS: false
       tags:
         - configure-foreman
