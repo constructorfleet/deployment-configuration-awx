@@ -271,7 +271,7 @@ awx_projects:
     scm_type: git
     scm_credential: ansible-github
     scm_clean: yes
-    scm_branch: feature/ldap_auth
+    scm_branch: hotfix/deployment_0
     scm_update_on_launch: no
     scm_url: git@github.com:constructorfleet/deployment-configuration-awx.git
     local_path: deployment-configuration-awx
