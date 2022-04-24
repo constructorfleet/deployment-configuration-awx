@@ -4,6 +4,13 @@ foreman_repositories_version: "3.2"
 foreman_installer_scenario: foreman
 foreman_puppet_repositories_version: 7
 
+foreman_organization: Default Organization
+foreman_location: Default Location
+foreman_domain: dev.home.prettybaked.com
+foreman_prod_domain: home.prettybaked.com
+foreman_tftp_root: /var/lib/tftpboot
+foreman_ldap_auth_source_name: PrettyBaked-LDAP
+
 foreman_users_groups:
   - name: foreman
     uid: 998
@@ -47,6 +54,7 @@ foreman_options:
   - enable-foreman-plugin-remote-execution
   - enable-foreman-proxy
   - foreman-proxy-tftp=true
+  - "foreman-proxy-tftp-root={{ foreman_tftp_root }}"
   - foreman-proxy-httpboot=true
   - foreman-proxy-httpboot-listen-on=http
   - foreman-foreman-url=https://build.dev.home.prettybaked.com
@@ -57,12 +65,7 @@ foreman_options:
   - 'foreman-initial-admin-username={{ foreman_username }}'
   - 'foreman-initial-admin-password={{ foreman_password }}'
 
-foreman_organization: Default Organization
-foreman_location: Default Location
-foreman_domain: dev.home.prettybaked.com
-foreman_prod_domain: home.prettybaked.com
 
-foreman_ldap_auth_source_name: PrettyBaked-LDAP
 
 foreman_ssh_public_key: !vault |
           $ANSIBLE_VAULT;1.1;AES256
