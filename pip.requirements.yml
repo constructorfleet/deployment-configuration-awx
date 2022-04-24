@@ -22,6 +22,7 @@ pycparser==2.21
 Pygments==2.11.2
 pyparsing==3.0.8
 pytest==7.1.1
+pytest-mock-3.7.0
 PyYAML==6.0
 requests==2.27.1
 resolvelib==0.5.4

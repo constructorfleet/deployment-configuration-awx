@@ -293,6 +293,25 @@
           loop_control:
             loop_var: os
             label: '{{ os.name }}'
+
+        - name: Configure Foreman Discovery Rules
+          foreman_discovery_rule:
+            name: "{{ rule.name }}"
+            search: "{{ rule.search }}"
+            hostgroup: "{{ rule.hostgroup }}"
+            organizations: "{{ rule.organizations | default(foreman_organization) }}"
+            locations: "{{ rule.locations | default(foreman_location) }}"
+            priority: "{{ rule.priority | default(omit) }}"
+            max_count: "{{ rule.max_count | default(omit) }}"
+            enabled: "{{ rule.enabled | default(True) }}"
+            hostname: "{{ rule.hostname | default(omit) }}"
+            state: '{{ rule.state | default("present") }}'
+          loop: '{{ foreman_discovery_rules | default([]) }}'
+          loop_control:
+            loop_var: rule
+            label: '{{ rule.name }}'
+          when:
+            - "'enable-foreman-plugin-discovery' in foreman_options or 'enable-foreman-proxy-plugin-discovery' in foreman_options"
       environment:  # theforeman.foreman collection does not utilize no_log on password argument - set ENV instead
         FOREMAN_SERVER_URL: '{{ foreman_server_url }}'
         FOREMAN_USERNAME: '{{ foreman_username }}'

@@ -49,6 +49,7 @@ foreman_options:
 foreman_organization: Default Organization
 foreman_location: Default Location
 foreman_domain: dev.home.prettybaked.com
+foreman_prod_domain: home.prettybaked.com
 
 foreman_ldap_auth_source_name: PrettyBaked-LDAP
 
@@ -162,24 +163,29 @@ foreman_organizations:
     locations:
       - name: '{{ foreman_location}}'
 
-foreman_compute_resources:
-  - name: "build.dev.home.prettybaked.com"
-    provider: libvirt
-    provider_params:
-      url: qemu+tcp://10.0.100.25/system
-      display_type: vnc
-
 foreman_domains:
   - name: '{{ foreman_domain }}'
     description: Development Domain
-  - name: 'home.prettybaked.com'
-    description: production Domain
+  - name: '{{ foreman_prod_domain }}'
+    description: Production Domain
 
 foreman_subnets:
+  - name: 10.0.10.0/24
+    description: PROD VLAN 10
+    network: 10.0.10.0
+    bridg: 10
+    mask: 255.255.255.0
+    gateway: 10.0.100.1
+    boot_mode: DHCP
+    domains:
+      - '{{ foreman_prod_domain }}'
+    dns_primary: 10.0.10.1
+    dns_secondary: 4.2.2.1
   - name: 10.0.100.0/24
     description: Development subnet representation of VLAN 10
     network: 10.0.100.0
     mask: 255.255.255.0
+    bridg: br0
     gateway: 10.0.100.1
     boot_mode: DHCP
     domains:
@@ -189,7 +195,7 @@ foreman_subnets:
   - name: 10.0.120.0/23
     description: Development subnet representation of VLAN 12
     network: 10.0.120.0
-    vlanid: 120
+    bridge: 120
     mask: 255.255.255.0
     gateway: 10.0.120.1
     boot_mode: DHCP
@@ -200,7 +206,7 @@ foreman_subnets:
   - name: 10.0.140.0/24
     description: Development subnet representation of VLAN 14
     network: 10.0.140.0
-    vlanid: 140
+    bridge: 140
     mask: 255.255.255.0
     gateway: 10.0.140.1
     boot_mode: DHCP
@@ -546,6 +552,10 @@ foreman_operating_systems:
         value: "disabled"
 
 foreman_hostgroups:
+  - name: prod
+    description: Production Resource
+    domain: '{{ foreman_prod_domain }}'
+    subnet: 10.0.10.0/24'
   - name: physical
     description: Physical resources
   - name: virtual
@@ -557,11 +567,11 @@ foreman_hostgroups:
     description: KVM Guests
     parent: physical
 
-#foreman_discovery_rules:
-#  - name: DiscoverPhysicalHosts
-#    organizations: '{{ foreman_organization }}'
-#    locations: '{{ foreman_location }}'
-#    search: 'virtual=physical'
-#    hostgroup: physical
-#    enabled: true
+foreman_discovery_rules:
+  - name: DiscoverProdServers
+    organizations: '{{ foreman_organization }}'
+    locations: '{{ foreman_location }}'
+    search: 'subnet.name = 10.0.10.0/24'
+    hostgroup: prod
+    enabled: true
 
