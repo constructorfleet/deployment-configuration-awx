@@ -87,6 +87,14 @@ foreman_bmc_password: !vault |
           39633031393734366639366336373932616165316263656432333437636265663831393366666561
           3034663765636536650a623738633761613964363830373264326537653338313739613131383230
           63366464646331386539666465323431653830386363653961316337633333323834
+foreman_prod_bmc_password: !vault |
+          $ANSIBLE_VAULT;1.1;AES256
+          33363135636636303835613834316332363231613266393335343761393666663438323833316661
+          6538633639343063356337356535643462633733373366300a336364643032353132383765373363
+          35376632333066306637353530356666363566393539303135343663633639343337373361636263
+          3934313831363666630a383235396431343432363139643830626236323634616665363963636131
+          37616266303736316661363434343665633666663136343361303031623039396532
+
 
 foreman_global_parameters:
   - name: remote_execution_ssh_keys
@@ -169,16 +177,24 @@ foreman_domains:
   - name: '{{ foreman_prod_domain }}'
     description: Production Domain
 
+foreman_compute_resources:
+  - name: dev01.dev.home.prettybaked.com
+    provider: libvirt
+    provider_params:
+      url: qemu+tcp://10.0.100.100/system
+      display_type: vnc
+
 foreman_subnets:
   - name: 10.0.10.0/24
     description: PROD VLAN 10
     network: 10.0.10.0
     bridg: 10
     mask: 255.255.255.0
-    gateway: 10.0.100.1
+    gateway: 10.0.10.1
     boot_mode: DHCP
     domains:
       - '{{ foreman_prod_domain }}'
+      - '{{ foreman_domain }}'
     dns_primary: 10.0.10.1
     dns_secondary: 4.2.2.1
   - name: 10.0.100.0/24
@@ -555,7 +571,7 @@ foreman_hostgroups:
   - name: prod
     description: Production Resource
     domain: '{{ foreman_prod_domain }}'
-    subnet: 10.0.10.0/24'
+    subnet: 10.0.10.0/24
   - name: physical
     description: Physical resources
   - name: virtual
