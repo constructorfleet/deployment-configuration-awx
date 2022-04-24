@@ -43,6 +43,7 @@ foreman_options:
   - enable-foreman-compute-libvirt
   - enable-foreman-plugin-discovery
   - enable-foreman-proxy-plugin-discovery
+  - enable-foreman-plugin-remote-execution
   - 'foreman-initial-admin-username={{ foreman_username }}'
   - 'foreman-initial-admin-password={{ foreman_password }}'
 
