@@ -162,6 +162,13 @@ foreman_organizations:
     locations:
       - name: '{{ foreman_location}}'
 
+foreman_compute_resources:
+  - name: "build.dev.home.prettybaked.com"
+    provider: libvirt
+    provider_params:
+      url: qemu+tcp://10.0.100.25/system
+      display_type: vnc
+
 foreman_domains:
   - name: '{{ foreman_domain }}'
     description: Development Domain
