@@ -5,6 +5,7 @@
     name: '{{ foreman_user_group.name }}'
     gid: '{{ foreman_user_group.gid }}'
     state: '{{ foreman_user_group.state | default("present") }}'
+  failed_when: false
 
 - name: Ensure Foreman user exists
   ansible.builtin.user:
@@ -15,6 +16,7 @@
     create_home: '{{ foreman_user_group.state | default("present") == "present" }}'
     home: '{{ foreman_user_group.home_dir }}'
     state: '{{ foreman_user_group.state | default("present") }}'
+  failed_when: false
 
 - name: Process User Directory
   ansible.builtin.include_tasks:

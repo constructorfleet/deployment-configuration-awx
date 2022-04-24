@@ -44,6 +44,15 @@ foreman_options:
   - enable-foreman-plugin-discovery
   - enable-foreman-proxy-plugin-discovery
   - enable-foreman-plugin-remote-execution
+  - enable-foreman-proxy
+  - foreman-proxy-tftp=true
+  - foreman-proxy-httpboot=true
+  - foreman-proxy-httpboot-listen-on=http
+  - foreman-foreman-url=https://build.dev.home.prettybaked.com
+  - foreman-websockets-encrypt=false
+  - foreman-proxy-bind-host=0.0.0.0
+  - foreman-proxy-ssl=true
+  - "foreman-proxy-foreman-base-url=https://build.dev.home.prettybaked.com"
   - 'foreman-initial-admin-username={{ foreman_username }}'
   - 'foreman-initial-admin-password={{ foreman_password }}'
 
@@ -584,11 +593,11 @@ foreman_hostgroups:
     description: KVM Guests
     parent: physical
 
-foreman_discovery_rules:
-  - name: DiscoverProdServers
-    organizations: '{{ foreman_organization }}'
-    locations: '{{ foreman_location }}'
-    search: 'subnet.name = 10.0.10.0/24'
-    hostgroup: prod
-    enabled: true
+#foreman_discovery_rules:
+#  - name: DiscoverProdServers
+#    organizations: '{{ foreman_organization }}'
+#    locations: '{{ foreman_location }}'
+#    search: 'subnet.name = 10.0.10.0/24'
+#    hostgroup: physical
+#    enabled: false
 

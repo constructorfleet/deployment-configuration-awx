@@ -178,13 +178,13 @@
 
         - name: Update AWX LDAP Settings
           awx.awx.tower_settings:
-            settings: "{{ awx_auth_sources_ldap | items2dict(key_name='name', value_name='value') | default([]) }}"
+            settings: "{{ awx_ldap_settings | items2dict(key_name='name', value_name='value') | default([]) }}"
             validate_certs: false
             tower_host: "{{ awx_server_url }}"
             tower_oauthtoken: '{{ tower_token }}'
           when:
-            - awx_auth_sources_ldap is defined
-            - awx_auth_sources_ldap is sequence
+            - awx_ldap_settings is defined
+            - awx_ldap_settings is sequence
 
         - name: Add projects to Tower
           awx.awx.tower_project:
