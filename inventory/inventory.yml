@@ -2,17 +2,23 @@ all:
   children:
     foreman:
       hosts:
-        buildservices01.home.prettybaked.com:
+        build.home.prettybaked.com:
+          ansible_ssh_host: 10.0.10.155
         dev-build.home.prettybaked.com:
+          ansible_ssh_host: 10.0.100.25
     awx:
       hosts:
-        buildservices01.home.prettybaked.com:
+        build.dev.home.prettybaked.com:
         dev-build.home.prettybaked.com:
+    ldap:
+      children:
+        foreman:
+        awx:
 
 dev:
   hosts:
-    dev-build.home.prettybaked.com:
-      ansible_ssh_host: 10.0.10.151
+    build.dev.home.prettybaked.com:
+      ansible_ssh_host: 10.0.10.155
 prod:
   hosts:
     buildservices01.home.prettybaked.com:

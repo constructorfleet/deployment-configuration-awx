@@ -1,9 +1,9 @@
 ---
 
-foreman_server_url: 'https://dev-build.home.prettybaked.com'
+foreman_server_url: 'https://build.dev.home.prettybaked.com'
 foreman_validate_certs: false
 awx_host_port: 8080
-awx_server_url: "http://{{ ansible_default_ipv4.address }}:{{ awx_host_port }}"
+awx_server_url: "http://10.0.100.25:{{ awx_host_port }}"
 vault_password: !vault |
           $ANSIBLE_VAULT;1.1;AES256
           35333030363032303365393664393937663561343036333335616565613461636332666138636537

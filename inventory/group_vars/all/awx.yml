@@ -212,7 +212,7 @@ awx_credentials:
     inputs:
       username: "{{ foreman_username }}"
       password: "{{ foreman_password }}"
-      host: "https://10.0.10.151"
+      host: "https://{{ ansible_default_ipv4.address }}"
 
 awx_ldap_settings:
   - name: SESSION_COOKIE_AGE

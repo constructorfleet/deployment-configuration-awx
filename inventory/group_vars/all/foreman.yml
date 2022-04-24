@@ -48,6 +48,7 @@ foreman_options:
 
 foreman_organization: Default Organization
 foreman_location: Default Location
+foreman_domain: dev.home.prettybaked.com
 
 foreman_ldap_auth_source_name: PrettyBaked-LDAP
 
@@ -147,8 +148,6 @@ foreman_usergroups:
       usergroup: managers
 
 foreman_settings:
-  - name: ansible_ssh_private_key_file
-    value: '/home/foreman/.ssh/id_rsa.foreman.pub'
   - name: entries_per_page
     value: 20
   - name: use_shortname_for_vms
@@ -164,42 +163,43 @@ foreman_organizations:
       - name: '{{ foreman_location}}'
 
 foreman_domains:
-  - name: dev.prettybaked.com
+  - name: '{{ foreman_domain }}'
     description: Development Domain
+  - name: 'home.prettybaked.com'
+    description: production Domain
 
 foreman_subnets:
   - name: 10.0.100.0/24
     description: Development subnet representation of VLAN 10
     network: 10.0.100.0
-    vlanid: 100
     mask: 255.255.255.0
     gateway: 10.0.100.1
     boot_mode: DHCP
     domains:
-      - dev.prettybaked.com
+      - '{{ foreman_domain }}'
     dns_primary: 10.0.100.1
     dns_secondary: 4.2.2.1
-  - name: 10.0.102.0/23
+  - name: 10.0.120.0/23
     description: Development subnet representation of VLAN 12
-    network: 10.0.102.0
-    vlanid: 102
-    mask: 255.255.254.0
-    gateway: 10.0.102.1
-    boot_mode: DHCP
-    domains:
-      - dev.prettybaked.com
-    dns_primary: 10.0.102.1
-    dns_secondary: 4.2.2.1
-  - name: 10.0.104.0/24
-    description: Development subnet representation of VLAN 14
-    network: 10.0.104.0
-    vlanid: 104
+    network: 10.0.120.0
+    vlanid: 120
     mask: 255.255.255.0
-    gateway: 10.0.104.1
+    gateway: 10.0.120.1
     boot_mode: DHCP
     domains:
-      - dev.prettybaked.com
-    dns_primary: 10.0.104.1
+      - '{{ foreman_domain }}'
+    dns_primary: 10.0.120.1
+    dns_secondary: 4.2.2.1
+  - name: 10.0.140.0/24
+    description: Development subnet representation of VLAN 14
+    network: 10.0.140.0
+    vlanid: 140
+    mask: 255.255.255.0
+    gateway: 10.0.140.1
+    boot_mode: DHCP
+    domains:
+      - '{{ foreman_domain }}'
+    dns_primary: 10.0.140.1
     dns_secondary: 4.2.2.1
 
 foreman_installation_media:
@@ -537,3 +537,24 @@ foreman_operating_systems:
       - name: selinux-mode
         parameter_type: string
         value: "disabled"
+
+foreman_hostgroups:
+  - name: physical
+    description: Physical resources
+  - name: virtual
+    description: Hypervisor Guests
+  - name: hypervisor
+    parent: physical
+    description: Hypervisor Hosts
+  - name: kvm
+    description: KVM Guests
+    parent: physical
+
+#foreman_discovery_rules:
+#  - name: DiscoverPhysicalHosts
+#    organizations: '{{ foreman_organization }}'
+#    locations: '{{ foreman_location }}'
+#    search: 'virtual=physical'
+#    hostgroup: physical
+#    enabled: true
+
