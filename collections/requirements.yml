@@ -1,10 +1,5 @@
 ---
 
-roles:
-  - src: https://github.com/ajanis/ansible-docker.git
-    name: docker
-    version: v3.7
-
 collections:
   - name: theforeman.operations
     version: 1.0.2

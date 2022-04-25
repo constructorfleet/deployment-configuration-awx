@@ -132,3 +132,5 @@ dmypy.json
 roles/*
 collections/*
 fact_cache/
+!roles/requirements.*
+!collections/requirements.*

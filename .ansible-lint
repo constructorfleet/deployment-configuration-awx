@@ -11,6 +11,8 @@ exclude_paths:
 - .venv/
 - roles/
 - collections/
+- playbooks/awx_configure.yml
+
 parseable: true
 # quiet: true
 verbosity: 1
@@ -22,6 +24,16 @@ mock_roles:
   - theforeman.operations.puppet_repositories
   - theforeman.operations.installer
   - docker
+
+mock_modules:
+  - awx.awx.tower_token
+  - awx.awx.tower_organization
+  - awx.awx.tower_credential_type
+  - awx.awx.tower_credential
+  - awx.awx.tower_inventory
+  - awx.awx.tower_inventory_source
+  - awx.awx.tower_settings
+  - awx.awx.tower_project
 
 # Enable checking of loop variable prefixes in roles
 #loop_var_prefix: "{role}_"
@@ -48,13 +60,13 @@ skip_list:
   - command-instead-of-module
   - command-instead-of-shell
 
-#rules:
-#  truthy:
-#    allowed-values:
-#      - yes
-#      - no
-#      - true
-#      - false
+rules:
+  truthy:
+    allowed-values:
+      - yes
+      - no
+      - true
+      - false
 
 # Any rule that has the 'opt-in' tag will not be loaded unless its 'id' is
 # mentioned in the enable_list:
@@ -74,6 +86,7 @@ warn_list:
   - skip_this_tag
   - git-latest
   - experimental  # experimental is included in the implicit list
+  - syntax-check
   # - role-name
 
 # Offline mode disables installation of requirements.yml
