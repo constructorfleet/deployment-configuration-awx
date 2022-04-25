@@ -4,6 +4,13 @@ foreman_repositories_version: "3.2"
 foreman_installer_scenario: foreman
 foreman_puppet_repositories_version: 7
 
+foreman_organization: Default Organization
+foreman_location: Default Location
+foreman_domain: dev.home.prettybaked.com
+foreman_prod_domain: home.prettybaked.com
+foreman_tftp_root: /var/lib/tftpboot
+foreman_ldap_auth_source_name: PrettyBaked-LDAP
+
 foreman_users_groups:
   - name: foreman
     uid: 998
@@ -43,13 +50,22 @@ foreman_options:
   - enable-foreman-compute-libvirt
   - enable-foreman-plugin-discovery
   - enable-foreman-proxy-plugin-discovery
+  - foreman-proxy-plugin-discovery-install-images=true
+  - enable-foreman-plugin-remote-execution
+  - enable-foreman-proxy
+  - foreman-proxy-tftp=true
+  - "foreman-proxy-tftp-root={{ foreman_tftp_root }}"
+  - foreman-proxy-httpboot=true
+  - foreman-proxy-httpboot-listen-on=http
+  - foreman-foreman-url=https://build.dev.home.prettybaked.com
+  - foreman-websockets-encrypt=false
+  - foreman-proxy-bind-host=0.0.0.0
+  - foreman-proxy-ssl=true
+  - "foreman-proxy-foreman-base-url=https://build.dev.home.prettybaked.com"
   - 'foreman-initial-admin-username={{ foreman_username }}'
   - 'foreman-initial-admin-password={{ foreman_password }}'
 
-foreman_organization: Default Organization
-foreman_location: Default Location
 
-foreman_ldap_auth_source_name: PrettyBaked-LDAP
 
 foreman_ssh_public_key: !vault |
           $ANSIBLE_VAULT;1.1;AES256
@@ -85,6 +101,14 @@ foreman_bmc_password: !vault |
           39633031393734366639366336373932616165316263656432333437636265663831393366666561
           3034663765636536650a623738633761613964363830373264326537653338313739613131383230
           63366464646331386539666465323431653830386363653961316337633333323834
+foreman_prod_bmc_password: !vault |
+          $ANSIBLE_VAULT;1.1;AES256
+          33363135636636303835613834316332363231613266393335343761393666663438323833316661
+          6538633639343063356337356535643462633733373366300a336364643032353132383765373363
+          35376632333066306637353530356666363566393539303135343663633639343337373361636263
+          3934313831363666630a383235396431343432363139643830626236323634616665363963636131
+          37616266303736316661363434343665633666663136343361303031623039396532
+
 
 foreman_global_parameters:
   - name: remote_execution_ssh_keys
@@ -147,8 +171,6 @@ foreman_usergroups:
       usergroup: managers
 
 foreman_settings:
-  - name: ansible_ssh_private_key_file
-    value: '/home/foreman/.ssh/id_rsa.foreman.pub'
   - name: entries_per_page
     value: 20
   - name: use_shortname_for_vms
@@ -164,42 +186,63 @@ foreman_organizations:
       - name: '{{ foreman_location}}'
 
 foreman_domains:
-  - name: dev.prettybaked.com
+  - name: '{{ foreman_domain }}'
     description: Development Domain
+  - name: '{{ foreman_prod_domain }}'
+    description: Production Domain
+
+foreman_compute_resources:
+  - name: dev01.dev.home.prettybaked.com
+    provider: libvirt
+    provider_params:
+      url: qemu+tcp://10.0.100.100/system
+      display_type: vnc
 
 foreman_subnets:
+  - name: 10.0.10.0/24
+    description: PROD VLAN 10
+    network: 10.0.10.0
+    bridg: 10
+    mask: 255.255.255.0
+    gateway: 10.0.10.1
+    boot_mode: DHCP
+    domains:
+      - '{{ foreman_prod_domain }}'
+      - '{{ foreman_domain }}'
+    dns_primary: 10.0.10.1
+    dns_secondary: 4.2.2.1
   - name: 10.0.100.0/24
     description: Development subnet representation of VLAN 10
     network: 10.0.100.0
-    vlanid: 100
     mask: 255.255.255.0
+    bridg: br0
     gateway: 10.0.100.1
     boot_mode: DHCP
     domains:
-      - dev.prettybaked.com
+      - '{{ foreman_domain }}'
     dns_primary: 10.0.100.1
     dns_secondary: 4.2.2.1
-  - name: 10.0.102.0/23
+  - name: 10.0.120.0/23
     description: Development subnet representation of VLAN 12
-    network: 10.0.102.0
-    vlanid: 102
-    mask: 255.255.254.0
-    gateway: 10.0.102.1
-    boot_mode: DHCP
-    domains:
-      - dev.prettybaked.com
-    dns_primary: 10.0.102.1
-    dns_secondary: 4.2.2.1
-  - name: 10.0.104.0/24
-    description: Development subnet representation of VLAN 14
-    network: 10.0.104.0
-    vlanid: 104
+    network: 10.0.120.0
+    bridge: 120
     mask: 255.255.255.0
-    gateway: 10.0.104.1
+    gateway: 10.0.120.1
     boot_mode: DHCP
     domains:
-      - dev.prettybaked.com
-    dns_primary: 10.0.104.1
+      - '{{ foreman_domain }}'
+    dns_primary: 10.0.120.1
+    dns_secondary: 4.2.2.1
+  - name: 10.0.140.0/24
+    description: Development subnet representation of VLAN 14
+    network: 10.0.140.0
+    bridge: 140
+    mask: 255.255.255.0
+    gateway: 10.0.140.1
+    boot_mode: DHCP
+    domains:
+      - '{{ foreman_domain }}'
+    dns_primary: 10.0.140.1
     dns_secondary: 4.2.2.1
 
 foreman_installation_media:
@@ -537,3 +580,28 @@ foreman_operating_systems:
       - name: selinux-mode
         parameter_type: string
         value: "disabled"
+
+foreman_hostgroups:
+  - name: prod
+    description: Production Resource
+    domain: '{{ foreman_prod_domain }}'
+    subnet: 10.0.10.0/24
+  - name: physical
+    description: Physical resources
+  - name: virtual
+    description: Hypervisor Guests
+  - name: hypervisor
+    parent: physical
+    description: Hypervisor Hosts
+  - name: kvm
+    description: KVM Guests
+    parent: physical
+
+#foreman_discovery_rules:
+#  - name: DiscoverProdServers
+#    organizations: '{{ foreman_organization }}'
+#    locations: '{{ foreman_location }}'
+#    search: 'subnet.name = 10.0.10.0/24'
+#    hostgroup: physical
+#    enabled: false
+

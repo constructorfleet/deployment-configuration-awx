@@ -212,7 +212,7 @@ awx_credentials:
     inputs:
       username: "{{ foreman_username }}"
       password: "{{ foreman_password }}"
-      host: "https://10.0.10.151"
+      host: "https://{{ ansible_default_ipv4.address }}"
 
 awx_ldap_settings:
   - name: SESSION_COOKIE_AGE
@@ -271,7 +271,7 @@ awx_projects:
     scm_type: git
     scm_credential: ansible-github
     scm_clean: yes
-    scm_branch: feature/ldap_auth
+    scm_branch: hotfix/deployment_0
     scm_update_on_launch: no
     scm_url: git@github.com:constructorfleet/deployment-configuration-awx.git
     local_path: deployment-configuration-awx
