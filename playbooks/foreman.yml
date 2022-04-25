@@ -10,11 +10,11 @@
       block:
         - name: Ensure Foreman user/group/directories/files exist
           ansible.builtin.include_tasks:
-            file: tasks/foreman_user_groups.yml
-          loop: '{{ foreman_users_groups }}'
+            file: tasks/foreman_system_user.yml
+          loop: '{{ foreman_system_users }}'
           loop_control:
-            loop_var: foreman_user_group
-            label: '{{ foreman_user_group.name }}'
+            loop_var: foreman_system_user
+            label: '{{ foreman_system_user.name }}'
         - name: Add Foreman Repositories
           ansible.builtin.include_role:
             name: theforeman.operations.foreman_repositories
@@ -50,6 +50,16 @@
         - name: Configure Foreman Settings
           ansible.builtin.include_role:
             name: theforeman.foreman.settings
+          vars:
+            foreman_settings:
+              - name: entries_per_page
+                value: 20
+              - name: use_shortname_for_vms
+                value: true
+              - name: idle_timeout
+                value: 480
+              - name: destroy_vm_on_host_delete
+                value: true
 
         - name: Configure Foreman LDAP Authentication Sources
           ansible.builtin.include_role:
@@ -59,11 +69,11 @@
           theforeman.foreman.usergroup:
             name: '{{ usergroup.name }}'
             admin: '{{ usergroup.admin | default(False) }}'
-            roles: '{{ usergroup.roles | default(omit) }}'
+            roles: '{{ usergroup.roles | default(omit) }}' # TODO
             users: '{{ usergroup.users | default(omit) }}'
             usergroups: '{{ usergroups.usergroups | default(omit) }}'
             state: '{{ usergroup.state | default("present") }}'
-          loop: '{{ foreman_usergroups.internal }}'
+          loop: '{{ organizations | map(attribute="usergroups", default=[]) | flatten }}'
           loop_control:
             loop_var: usergroup
             label: '{{ usergroup.name }}'
@@ -73,8 +83,15 @@
             name: '{{ usergroup.name }}'
             auth_source_ldap: '{{ usergroup.auth_source }}'
             usergroup: '{{ usergroup.usergroup }}'
-            state: '{{ usergroup.state | default("present") }}'
-          loop: '{{ foreman_usergroups.external }}'
+            state: '{{ usergroup.state | default("present") }}' # TODO
+          loop: |-
+            {{
+                organizations
+                  | map(attribute="usergroups", default=[])
+                  | selectattr('ldap_sync', 'defined')
+                  | list
+                  | default([])
+            }}
           loop_control:
             loop_var: usergroup
             label: '{{ usergroup.name }}'
@@ -86,7 +103,7 @@
             parameters: '{{ domain.parameters | default(omit) }}'
             dns_proxy: '{{ (domain.dns_proxy | default(omit)) if (foreman_proxy_dns | default(False)) else omit }}'
             state: '{{ doman.state | default("present") }}'
-          loop: '{{ foreman_domains | default([]) }}'
+          loop: '{{ domains | default([]) }}'
           loop_control:
             loop_var: domain
             label: '{{ domain.name }}'
@@ -109,8 +126,8 @@
             vlanid: "{{ subnet.vlanid | default(omit) }}"
             mtu: "{{ subnet.mtu | default(1500) }}"
             parameters: "{{ subnet.parameters | default(omit) }}"
-            organizations: "{{ subnet.organizations | default(foreman_organization) }}"
-            locations: "{{ subnet.locations | default(foreman_location) }}"
+            organizations: "{{ subnet.organizations | default(omit) }}"
+            locations: "{{ subnet.locations | default(omit) }}"
             discovery_proxy: "{{ (subnet.discovery_proxy | default(omit)) if (foreman_proxy_dhcp | default(False)) else omit }}"
             dhcp_proxy: "{{ (subnet.dhcp_proxy | default(omit)) if (foreman_proxy_dhcp | default(False)) else omit }}"
             tftp_proxy: "{{ (subnet.tftp_proxy | default(omit)) if (foreman_proxy_tftp | default(False)) else omit }}"
@@ -184,7 +201,7 @@
             parent: "{{ hostgroup.parent | default(omit) }}"
             compute_resource: "{{ hostgroup.compute_resource | default(omit) }}"
             parameters: "{{ hostgroup.parameters | default(omit) }}"
-          loop: '{{ foreman_hostgroups | default([]) }}'
+          loop: '{{ hostgroups | default([]) }}'
           loop_control:
             loop_var: hostgroup
             label: '{{ hostgroup.name }}'

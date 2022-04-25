@@ -11,7 +11,6 @@ exclude_paths:
 - .venv/
 - roles/
 - collections/
-- playbooks/awx_configure.yml
 
 parseable: true
 # quiet: true
@@ -93,21 +92,7 @@ warn_list:
 offline: false
 
 # Define required Ansible's variables to satisfy syntax check
-extra_vars:
-  root_path: '.'
-  environment: DEV
-  multicast_dns_intf: ens224
-  sql_server_ip: 1.1.1.1
-  sql_server_instance: SQLSERVER1
-  database_name: DB
-  database_credentials:
-    username: USER
-    password: PASSWORD
-  image_share_source: //1.1.1.1/myshare
-  remote_fs_credentials:
-    username: user
-    password: password
-
+extra_vars: []
 # Uncomment to enforce action validation with tasks, usually is not
 # needed as Ansible syntax check also covers it.
 skip_action_validation: false
@@ -115,10 +100,10 @@ skip_action_validation: false
 # List of additional kind:pattern to be added at the top of the default
 # match list, first match determines the file kind.
 kinds:
-  # - playbook: "**/examples/*.{yml,yaml}"
-  # - galaxy: "**/folder/galaxy.yml"
+  - playbook: "**/playbooks/*.{yml,yaml}"
   - tasks: "**/tasks/*.yml"
   - vars: "**/vars/*.yml"
   - meta: "**/meta/main.yml"
+  - templates: "**/templates/*.js"
   - yaml: "**/*.yaml-too"
 

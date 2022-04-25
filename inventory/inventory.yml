@@ -12,10 +12,6 @@ all:
 #        build.home.prettybaked.com:
         build.dev.home.prettybaked.com:
           ansible_ssh_host: 10.0.10.155
-    ldap:
-      children:
-        foreman:
-        awx:
 
 dev:
   hosts:

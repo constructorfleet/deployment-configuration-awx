@@ -11,40 +11,6 @@ foreman_prod_domain: home.prettybaked.com
 foreman_tftp_root: /var/lib/tftpboot
 foreman_ldap_auth_source_name: PrettyBaked-LDAP
 
-foreman_users_groups:
-  - name: foreman
-    uid: 998
-    gid: 998
-    home_dir: /usr/share/foreman
-    directories:
-      - name: .ssh
-        mode: '0755'
-        files:
-          - source: id_rsa.foreman
-            dest: id_rsa
-            decrypt: true
-            mode: '0600'
-          - source: id_rsa.foreman.pub
-            dest: id_rsa.pub
-            decrypt: true
-            mode: '0644'
-  - name: foreman-proxy
-    uid: 997
-    gid: 997
-    home_dir: /usr/share/foreman-proxy
-    directories:
-      - name: .ssh
-        mode: '0755'
-        files:
-          - source: id_rsa_foreman_proxy
-            dest: id_rsa_foreman_proxy
-            decrypt: true
-            mode: '0600'
-          - source: id_rsa_foreman_proxy.pub
-            dest: id_rsa_foreman_proxy.pub
-            decrypt: true
-            mode: '0644'
-
 foreman_options:
   - enable-foreman-cli-discovery
   - enable-foreman-compute-libvirt
@@ -94,20 +60,6 @@ foreman_ssh_public_key: !vault |
           62336363326662633031306237306237663535643337623630386135326630303035373263633764
           37633137363631373836303538663436373639306262626439383136313137346138343963646633
           6237
-foreman_bmc_password: !vault |
-          $ANSIBLE_VAULT;1.1;AES256
-          32613638636263613236643565646632396336383533636537386361326362653037373663303635
-          3366316437363336343830333165386261363337396638360a633864383064323030653666336634
-          39633031393734366639366336373932616165316263656432333437636265663831393366666561
-          3034663765636536650a623738633761613964363830373264326537653338313739613131383230
-          63366464646331386539666465323431653830386363653961316337633333323834
-foreman_prod_bmc_password: !vault |
-          $ANSIBLE_VAULT;1.1;AES256
-          33363135636636303835613834316332363231613266393335343761393666663438323833316661
-          6538633639343063356337356535643462633733373366300a336364643032353132383765373363
-          35376632333066306637353530356666363566393539303135343663633639343337373361636263
-          3934313831363666630a383235396431343432363139643830626236323634616665363963636131
-          37616266303736316661363434343665633666663136343361303031623039396532
 
 
 foreman_global_parameters:
@@ -135,61 +87,6 @@ foreman_global_parameters:
     parameter_type: string
     value: "{{ foreman_bmc_password }}"
 
-foreman_auth_sources_ldap:
-  - name: '{{ foreman_ldap_auth_source_name }}'
-    host: '{{ ldap_authentication.host }}'
-    port: 389
-    tls: false
-    onthefly_register: true
-    server_type: posix
-    account: '{{ ldap_authentication.account }}'
-    account_password: '{{ ldap_authentication.account_password}}'
-    base_dn: '{{ ldap_authentication.base_dn }}'
-    groups_base: '{{ ldap_authentication.groups_base }}'
-    attr_login: '{{ ldap_authentication.attr_login }}'
-    attr_firstname: '{{ ldap_authentication.attr_firstname }}'
-    attr_lastname: '{{ ldap_authentication.attr_lastname }}'
-    attr_mail: '{{ ldap_authentication.attr_mail }}'
-    ldap_filter: (&(objectClass=posixAccount)(|(gidNumber=1042)(gidNumber=2002)))
-    locations: '{{ foreman_location }}'
-    usergroup_sync: true
-
-foreman_usergroups:
-  internal:
-    - name: administrators
-      admin: yes
-    - name: managers
-      admin: no
-      roles:
-        - Manager
-  external:
-    - name: admin
-      auth_source: '{{ foreman_ldap_auth_source_name }}'
-      usergroup: administrators
-    - name: users
-      auth_source: '{{ foreman_ldap_auth_source_name }}'
-      usergroup: managers
-
-foreman_settings:
-  - name: entries_per_page
-    value: 20
-  - name: use_shortname_for_vms
-    value: true
-  - name: idle_timeout
-    value: 480
-  - name: destroy_vm_on_host_delete
-    value: true
-
-foreman_organizations:
-  - name: '{{ foreman_organization }}'
-    locations:
-      - name: '{{ foreman_location}}'
-
-foreman_domains:
-  - name: '{{ foreman_domain }}'
-    description: Development Domain
-  - name: '{{ foreman_prod_domain }}'
-    description: Production Domain
 
 foreman_compute_resources:
   - name: dev01.dev.home.prettybaked.com
@@ -201,49 +98,34 @@ foreman_compute_resources:
 foreman_subnets:
   - name: 10.0.10.0/24
     description: PROD VLAN 10
-    network: 10.0.10.0
     bridg: 10
-    mask: 255.255.255.0
     gateway: 10.0.10.1
     boot_mode: DHCP
     domains:
-      - '{{ foreman_prod_domain }}'
-      - '{{ foreman_domain }}'
-    dns_primary: 10.0.10.1
-    dns_secondary: 4.2.2.1
+      - home.prettybaked.com
+      - dev.home.pretybaked.com
   - name: 10.0.100.0/24
     description: Development subnet representation of VLAN 10
-    network: 10.0.100.0
-    mask: 255.255.255.0
     bridg: br0
     gateway: 10.0.100.1
     boot_mode: DHCP
     domains:
-      - '{{ foreman_domain }}'
-    dns_primary: 10.0.100.1
-    dns_secondary: 4.2.2.1
+      - dev.home.prettybaked.com
   - name: 10.0.120.0/23
     description: Development subnet representation of VLAN 12
-    network: 10.0.120.0
     bridge: 120
-    mask: 255.255.255.0
     gateway: 10.0.120.1
     boot_mode: DHCP
     domains:
-      - '{{ foreman_domain }}'
-    dns_primary: 10.0.120.1
-    dns_secondary: 4.2.2.1
+      - dev.home.prettybaked.com
   - name: 10.0.140.0/24
     description: Development subnet representation of VLAN 14
-    network: 10.0.140.0
     bridge: 140
     mask: 255.255.255.0
     gateway: 10.0.140.1
     boot_mode: DHCP
     domains:
-      - '{{ foreman_domain }}'
-    dns_primary: 10.0.140.1
-    dns_secondary: 4.2.2.1
+      - dev.home.prettybaked.com
 
 foreman_installation_media:
   - name: CentOS 8 mirror
@@ -580,28 +462,3 @@ foreman_operating_systems:
       - name: selinux-mode
         parameter_type: string
         value: "disabled"
-
-foreman_hostgroups:
-  - name: prod
-    description: Production Resource
-    domain: '{{ foreman_prod_domain }}'
-    subnet: 10.0.10.0/24
-  - name: physical
-    description: Physical resources
-  - name: virtual
-    description: Hypervisor Guests
-  - name: hypervisor
-    parent: physical
-    description: Hypervisor Hosts
-  - name: kvm
-    description: KVM Guests
-    parent: physical
-
-#foreman_discovery_rules:
-#  - name: DiscoverProdServers
-#    organizations: '{{ foreman_organization }}'
-#    locations: '{{ foreman_location }}'
-#    search: 'subnet.name = 10.0.10.0/24'
-#    hostgroup: physical
-#    enabled: false
-
