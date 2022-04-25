@@ -8,6 +8,12 @@
   vars:
     broadcast_websocket_secret: '{{ awx_secret_key }}'
   tasks:
+    - name: Prepare variables for use in services
+      ansible.builtin.include_tasks:
+        file: tasks/convert_variables_to_expected_format.yml
+      tags:
+        - always
+
     - name: Install AWX
       block:
         - name: Install Tower-CLI package
