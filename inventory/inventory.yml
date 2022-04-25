@@ -9,16 +9,11 @@ all:
     awx:
       hosts:
         buildservices01.home.prettybaked.com:
-#        build.home.prettybaked.com:
         build.dev.home.prettybaked.com:
-          ansible_ssh_host: 10.0.10.155
 
 dev:
   hosts:
-#    build.home.prettybaked.com:
     build.dev.home.prettybaked.com:
-      ansible_ssh_host: 10.0.10.155
 prod:
   hosts:
     buildservices01.home.prettybaked.com:
-      ansible_ssh_host: 10.0.10.25
