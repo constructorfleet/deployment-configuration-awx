@@ -1,0 +1,24 @@
+#!/bin/bash
+source "$(pwd)/.print_utils.sh"
+
+if [[ ! -d venv ]]; then
+  writeln "$(style_text "No venv detected, please setup a Python 3.6 virtual env first" $RED $BOLD)"
+  exit 1
+fi
+
+writeln "$(style_text "Running linter..." $BLUE $BOLD)"
+source venv/bin/activate
+./run_linter.sh
+rc=$?
+if [[ $rc -ne 0 ]]; then
+  writeln "$(style_text "Linter failed: $rc!" $RED $BOLD)"
+  exit 4
+fi
+
+writeln "$(style_text "Running tests..." $BLUE $BOLD)"
+./run_pytest.sh
+rc=$?
+if [[ $rc -ne 0 ]] && [[ $rc -ne 5 ]]; then
+  writeln "$(style_text "PyTest failed: $rc!" $RED $BOLD)"
+  exit 5
+fi

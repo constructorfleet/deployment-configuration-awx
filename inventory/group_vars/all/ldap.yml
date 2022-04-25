@@ -1,0 +1,30 @@
+---
+ldap_server: ldap.home.prettybaked.com
+ldap_server_port: 389
+ldap_server_tls: no
+ldap_password: !vault |
+          $ANSIBLE_VAULT;1.1;AES256
+          33666161653335333936383062646165623662663135623135386266663134623561643739316430
+          6138646336376362613630336561623937613530643962370a346535336264386239306363626561
+          33626232306634663230393366333564366237376536323330383839313538333832646361303930
+          3030336466333762640a366362303164656133313433393037613433613737363839383439653165
+          35626334396262343133633939393061303939343538393631633633626133303338643864626564
+          6530643466666464383037633766303131643266363061663565
+ldap_base_dn: 'dc={{ ",dc=".join( ldap_server.split(".")) }}'
+
+ldap_authentication:
+  host: 10.0.10.15
+  server: '{{ ldap_server }}'
+  server_port: '{{ ldap_server_port }}'
+  server_tls: '{{ ldap_server_tls }}'
+  account: 'cn=Manager,{{ ldap_base_dn }}'
+  account_password: '{{ ldap_password }}'
+  base_dn: '{{ ldap_base_dn }}'
+  groups_base: 'ou=groups,{{ ldap_base_dn }}'
+  users_base: 'ou=users,{{ ldap_base_dn }}'
+  attr_login: uid
+  attr_firstname: givenName
+  attr_lastname: sn
+  attr_mail: mail
+  attr_photo: jpegPhoto
+  state: present

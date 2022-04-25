@@ -3,28 +3,605 @@
 foreman_repositories_version: "3.2"
 foreman_installer_scenario: foreman
 foreman_puppet_repositories_version: 7
-foreman_server_url: 'http://testvm1.home.prettybaked.com:8080'
-foreman_validate_certs: false
-foreman_username: !vault |
-          $ANSIBLE_VAULT;1.1;AES256
-          64386661616265363933633363626539653839313038356135376662393937636633303032366433
-          3432656437373138643737643564366461346666316639360a646132326135353033393435356364
-          31343232306263613832363737346230333862366362643238666363343031376163336263303738
-          3937613630666565380a346465326132613463356138643931393665303533333762633830373965
-          3433
-foreman_password: !vault |
-          $ANSIBLE_VAULT;1.1;AES256
-          66323832646361653365373162666630636433363732333337656663333938613464393838633734
-          6263646363623731356133653332363739396534373065630a303532623266623364383461633739
-          33663365376663643832343062343362643831623437323765623733373732323137363530656432
-          6138346435636264620a613863333764643130356232343339646663356236633862353332383335
-          39396231653236373731623330343062356463346462316634326334333836303635
+
+foreman_organization: Default Organization
+foreman_location: Default Location
+foreman_domain: dev.home.prettybaked.com
+foreman_prod_domain: home.prettybaked.com
+foreman_tftp_root: /var/lib/tftpboot
+foreman_ldap_auth_source_name: PrettyBaked-LDAP
+
+foreman_users_groups:
+  - name: foreman
+    uid: 998
+    gid: 998
+    home_dir: /usr/share/foreman
+    directories:
+      - name: .ssh
+        mode: '0755'
+        files:
+          - source: id_rsa.foreman
+            dest: id_rsa
+            decrypt: true
+            mode: '0600'
+          - source: id_rsa.foreman.pub
+            dest: id_rsa.pub
+            decrypt: true
+            mode: '0644'
+  - name: foreman-proxy
+    uid: 997
+    gid: 997
+    home_dir: /usr/share/foreman-proxy
+    directories:
+      - name: .ssh
+        mode: '0755'
+        files:
+          - source: id_rsa_foreman_proxy
+            dest: id_rsa_foreman_proxy
+            decrypt: true
+            mode: '0600'
+          - source: id_rsa_foreman_proxy.pub
+            dest: id_rsa_foreman_proxy.pub
+            decrypt: true
+            mode: '0644'
+
 foreman_options:
-  - enable-foreman-cli-ansible
   - enable-foreman-cli-discovery
   - enable-foreman-compute-libvirt
-  - enable-foreman-plugin-ansible
-  - enable-foreman-proxy-plugin-ansible
+  - enable-foreman-plugin-discovery
   - enable-foreman-proxy-plugin-discovery
+  - foreman-proxy-plugin-discovery-install-images=true
+  - enable-foreman-plugin-remote-execution
+  - enable-foreman-proxy
+  - foreman-proxy-tftp=true
+  - "foreman-proxy-tftp-root={{ foreman_tftp_root }}"
+  - foreman-proxy-httpboot=true
+  - foreman-proxy-httpboot-listen-on=http
+  - foreman-foreman-url=https://build.dev.home.prettybaked.com
+  - foreman-websockets-encrypt=false
+  - foreman-proxy-bind-host=0.0.0.0
+  - foreman-proxy-ssl=true
+  - "foreman-proxy-foreman-base-url=https://build.dev.home.prettybaked.com"
   - 'foreman-initial-admin-username={{ foreman_username }}'
   - 'foreman-initial-admin-password={{ foreman_password }}'
+
+
+
+foreman_ssh_public_key: !vault |
+          $ANSIBLE_VAULT;1.1;AES256
+          37643831303237636437363661376439633430396234343539376565366364373430646238363166
+          3334376536383132643465626139386536326131666563340a383539336430333865386436323262
+          62663666306431353861356137396232346134353139306333393466336563653831363330613734
+          3239663038326334310a633532396338383639356566383837663238343231633734656130633461
+          66343937626632326466323233366166666633616339653864323832633438326439646131663931
+          30616530373932383230653039353737336336303035303765313238333962343165363663326334
+          64363236633966346364636564366434653765393661383334343536336633626338646636306538
+          64343765653161336438616664356466373331393766383562323035633861646536633239373937
+          64663231303539393732303536636535656131323666316336333861386333356639303639343730
+          32376631333639326463633466356138313137633532353832383638366638616333626265616337
+          61343237356236343839323632313339303235383663333239393332363766376532333735336138
+          36663365613738616134333736656466643832396365333433316334383936373036396366666232
+          35613261663537386438373734373634366462343262353363353736653532643839323133643361
+          63386630636237396337396464333239643264643364383861356136383832633363383565613766
+          61353361336132633539326364643665336661383132663462373232393532316263376433333465
+          33616465613066376435383661323439646466373935333336616239316265373439323363643565
+          36356263616333336433643038646366373936316336623062303935316335353934656661656363
+          30393861323062323537383036373534323034323430663461623664623262373366623038386432
+          61613266633131616430316363633232303565363633343939643934636264653564616333623138
+          37383266353333383064383832316638636363316437663261393365656465303664316139323833
+          39626335343065303965383730366331353335316131643366383361653638626430613831323531
+          37336532313466323466643761373063396466633836623332326163333131643862323833346136
+          62336363326662633031306237306237663535643337623630386135326630303035373263633764
+          37633137363631373836303538663436373639306262626439383136313137346138343963646633
+          6237
+foreman_bmc_password: !vault |
+          $ANSIBLE_VAULT;1.1;AES256
+          32613638636263613236643565646632396336383533636537386361326362653037373663303635
+          3366316437363336343830333165386261363337396638360a633864383064323030653666336634
+          39633031393734366639366336373932616165316263656432333437636265663831393366666561
+          3034663765636536650a623738633761613964363830373264326537653338313739613131383230
+          63366464646331386539666465323431653830386363653961316337633333323834
+foreman_prod_bmc_password: !vault |
+          $ANSIBLE_VAULT;1.1;AES256
+          33363135636636303835613834316332363231613266393335343761393666663438323833316661
+          6538633639343063356337356535643462633733373366300a336364643032353132383765373363
+          35376632333066306637353530356666363566393539303135343663633639343337373361636263
+          3934313831363666630a383235396431343432363139643830626236323634616665363963636131
+          37616266303736316661363434343665633666663136343361303031623039396532
+
+
+foreman_global_parameters:
+  - name: remote_execution_ssh_keys
+    parameter_type: array
+    value:
+      - "{{ foreman_ssh_public_key }}"
+  - name: ansible_host_config_key
+    value: "{{ awx_host_config_key }}"
+  - name: ansible_tower_fqdn
+    value: "{{ awx_server_url }}"
+  - name: ansible_enabled
+    parameter_type: boolean
+    value: "True"
+  - name: ansible_tower_provisioning
+    parameter_type: boolean
+    value: "True"
+  - name: kernel_params
+    parameter_type: string
+    value: "console=ttyS1,115200n8 console=tty1 net.ifnames=0 biosdevname=0 nosplash"
+  - name: bmc_user
+    parameter_type: string
+    value: ADMIN
+  - name: bmc_password
+    parameter_type: string
+    value: "{{ foreman_bmc_password }}"
+
+foreman_auth_sources_ldap:
+  - name: '{{ foreman_ldap_auth_source_name }}'
+    host: '{{ ldap_authentication.host }}'
+    port: 389
+    tls: false
+    onthefly_register: true
+    server_type: posix
+    account: '{{ ldap_authentication.account }}'
+    account_password: '{{ ldap_authentication.account_password}}'
+    base_dn: '{{ ldap_authentication.base_dn }}'
+    groups_base: '{{ ldap_authentication.groups_base }}'
+    attr_login: '{{ ldap_authentication.attr_login }}'
+    attr_firstname: '{{ ldap_authentication.attr_firstname }}'
+    attr_lastname: '{{ ldap_authentication.attr_lastname }}'
+    attr_mail: '{{ ldap_authentication.attr_mail }}'
+    ldap_filter: (&(objectClass=posixAccount)(|(gidNumber=1042)(gidNumber=2002)))
+    locations: '{{ foreman_location }}'
+    usergroup_sync: true
+
+foreman_usergroups:
+  internal:
+    - name: administrators
+      admin: yes
+    - name: managers
+      admin: no
+      roles:
+        - Manager
+  external:
+    - name: admin
+      auth_source: '{{ foreman_ldap_auth_source_name }}'
+      usergroup: administrators
+    - name: users
+      auth_source: '{{ foreman_ldap_auth_source_name }}'
+      usergroup: managers
+
+foreman_settings:
+  - name: entries_per_page
+    value: 20
+  - name: use_shortname_for_vms
+    value: true
+  - name: idle_timeout
+    value: 480
+  - name: destroy_vm_on_host_delete
+    value: true
+
+foreman_organizations:
+  - name: '{{ foreman_organization }}'
+    locations:
+      - name: '{{ foreman_location}}'
+
+foreman_domains:
+  - name: '{{ foreman_domain }}'
+    description: Development Domain
+  - name: '{{ foreman_prod_domain }}'
+    description: Production Domain
+
+foreman_compute_resources:
+  - name: dev01.dev.home.prettybaked.com
+    provider: libvirt
+    provider_params:
+      url: qemu+tcp://10.0.100.100/system
+      display_type: vnc
+
+foreman_subnets:
+  - name: 10.0.10.0/24
+    description: PROD VLAN 10
+    network: 10.0.10.0
+    bridg: 10
+    mask: 255.255.255.0
+    gateway: 10.0.10.1
+    boot_mode: DHCP
+    domains:
+      - '{{ foreman_prod_domain }}'
+      - '{{ foreman_domain }}'
+    dns_primary: 10.0.10.1
+    dns_secondary: 4.2.2.1
+  - name: 10.0.100.0/24
+    description: Development subnet representation of VLAN 10
+    network: 10.0.100.0
+    mask: 255.255.255.0
+    bridg: br0
+    gateway: 10.0.100.1
+    boot_mode: DHCP
+    domains:
+      - '{{ foreman_domain }}'
+    dns_primary: 10.0.100.1
+    dns_secondary: 4.2.2.1
+  - name: 10.0.120.0/23
+    description: Development subnet representation of VLAN 12
+    network: 10.0.120.0
+    bridge: 120
+    mask: 255.255.255.0
+    gateway: 10.0.120.1
+    boot_mode: DHCP
+    domains:
+      - '{{ foreman_domain }}'
+    dns_primary: 10.0.120.1
+    dns_secondary: 4.2.2.1
+  - name: 10.0.140.0/24
+    description: Development subnet representation of VLAN 14
+    network: 10.0.140.0
+    bridge: 140
+    mask: 255.255.255.0
+    gateway: 10.0.140.1
+    boot_mode: DHCP
+    domains:
+      - '{{ foreman_domain }}'
+    dns_primary: 10.0.140.1
+    dns_secondary: 4.2.2.1
+
+foreman_installation_media:
+  - name: CentOS 8 mirror
+    os_family: Redhat
+    state: absent
+  - name: CentOS 9 Stream
+    os_family: Redhat
+    path: http://mirror.stream.centos.org/$major-stream/BaseOS/$arch/os
+
+foreman_operating_systems:
+  - name: "Ubuntu"
+    description: "Ubuntu 18.04.3 LTS"
+    release_name: "bionic"
+    family: "Debian"
+    major: "18"
+    minor: "04.3"
+    provisioning_templates:
+      - "Preseed default iPXE"
+      - "Preseed default"
+      - "Preseed default PXELinux"
+      - "Preseed default finish"
+      - "Preseed default user data"
+    partion_tables:
+      - "Preseed default"
+      - "Preseed default LVM"
+    architectures:
+      - x86_64
+    media: "Ubuntu mirror"
+    parameters:
+      - name: additional-packages
+        parameter_type: yaml
+        value:
+          - curl
+          - net-tools
+          - ethtool
+      - name: kernel_params
+        parameter_type: string
+        value: "console=ttyS1,115200n8 console=tty1 net.ifnames=0 biosdevname=0 nosplash"
+      - name: partitioning-type
+        parameter_type: string
+        value: "general"
+      - name: partitioning-recipe
+        parameter_type: string
+        value: "atomic"
+  - name: "Ubuntu"
+    description: "Ubuntu 18.04.2 LTS"
+    release_name: "bionic"
+    family: "Debian"
+    major: "18"
+    minor: "04.2"
+    provisioning_templates:
+      - "Preseed default iPXE"
+      - "Preseed default"
+      - "Preseed default PXELinux"
+      - "Preseed default finish"
+      - "Preseed default user data"
+    partition_tables:
+      - "Preseed default"
+      - "Preseed default LVM"
+    architectures:
+      - x86_64
+    media: "Ubuntu mirror"
+    parameters:
+      - name: additional-packages
+        parameter_type: yaml
+        value:
+          - curl
+          - net-tools
+          - ethtool
+      - name: kernel_params
+        parameter_type: string
+        value: "console=ttyS1,115200n8 console=tty1 net.ifnames=0 biosdevname=0 nosplash"
+      - name: partitioning-type
+        parameter_type: string
+        value: "general"
+      - name: partitioning-recipe
+        parameter_type: string
+        value: "atomic"
+  - name: "Ubuntu"
+    description: "Ubuntu 18.04"
+    release_name: "bionic"
+    family: "Debian"
+    major: "18"
+    minor: "04"
+    provisioning_templates:
+      - "Preseed default iPXE"
+      - "Preseed default"
+      - "Preseed default PXELinux"
+      - "Preseed default finish"
+      - "Preseed default user data"
+    partition_tables:
+      - "Preseed default"
+      - "Preseed default LVM"
+    architectures:
+      - x86_64
+    media: "Ubuntu mirror"
+    parameters:
+      - name: additional-packages
+        parameter_type: yaml
+        value:
+          - curl
+          - net-tools
+          - ethtool
+      - name: kernel_params
+        parameter_type: string
+        value: "console=ttyS1,115200n8 console=tty1 net.ifnames=0 biosdevname=0 nosplash"
+      - name: partitioning-type
+        parameter_type: string
+        value: "general"
+      - name: partitioning-recipe
+        parameter_type: string
+        value: "atomic"
+  - name: "Ubuntu"
+    description: "Ubuntu 20.04"
+    release_name: "focal"
+    family: "Debian"
+    major: "20"
+    minor: "04"
+    provisioning_templates:
+      - "Preseed default iPXE"
+      - "Preseed default"
+      - "Preseed default PXELinux"
+      - "Preseed default finish"
+      - "Preseed default user data"
+    partion_tables:
+      - "Preseed default"
+      - "Preseed default LVM"
+    architectures:
+      - x86_64
+    media: "Ubuntu mirror"
+    parameters:
+      - name: additional-packages
+        parameter_type: yaml
+        value:
+          - curl
+          - net-tools
+          - ethtool
+      - name: kernel_params
+        parameter_type: string
+        value: "console=ttyS1,115200n8 console=tty1 net.ifnames=0 biosdevname=0 nosplash"
+      - name: partitioning-type
+        parameter_type: string
+        value: "general"
+      - name: partitioning-recipe
+        parameter_type: string
+        value: "atomic"
+  - name: "CentOS"
+    description: "CentOS 7.7"
+    family: "Redhat"
+    major: "7"
+    minor: "7"
+    provisioning_templates:
+      - "Kickstart default iPXE"
+      - "Kickstart default"
+      - "Kickstart default PXELinux"
+      - "Kickstart default finish"
+      - "Kickstart default user data"
+    partion_tables:
+      - "Kickstart default"
+      - "Kickstart default thin"
+    architectures:
+      - x86_64
+    media: "CentOS 7 mirror"
+    parameters:
+      - name: additional-packages
+        parameter_type: yaml
+        value:
+          - net-tools
+          - redhat-lsb
+      - name: autopart_options
+        parameter_type: string
+        value: "--type=plain --nohome --fstype=ext4"
+      - name: kernel_params
+        parameter_type: string
+        value: "console=ttyS1,115200n8 console=tty1 net.ifnames=0 biosdevname=0"
+      - name: selinux-mode
+        parameter_type: string
+        value: "disabled"
+  - name: "CentOS"
+    description: "CentOS 8.0"
+    family: "Redhat"
+    major: "8"
+    minor: "0"
+    provisioning_templates:
+      - "Kickstart default iPXE"
+      - "Kickstart default"
+      - "Kickstart default PXELinux"
+      - "Kickstart default finish"
+      - "Kickstart default user data"
+    partion_tables:
+      - "Kickstart default"
+      - "Kickstart default thin"
+    architectures:
+      - x86_64
+    media: "CentOS Stream"
+    parameters:
+      - name: additional-packages
+        parameter_type: yaml
+        value:
+          - net-tools
+          - redhat-lsb
+      - name: autopart_options
+        parameter_type: string
+        value: "--type=plain --nohome --fstype=ext4"
+      - name: kernel_params
+        parameter_type: string
+        value: "console=ttyS1,115200n8 console=tty1 net.ifnames=0 biosdevname=0"
+      - name: selinux-mode
+        parameter_type: string
+        value: "disabled"
+  - name: "CentOS"
+    description: "CentOS 8.1"
+    family: "Redhat"
+    major: "8"
+    minor: "1"
+    provisioning_templates:
+      - "Kickstart default iPXE"
+      - "Kickstart default"
+      - "Kickstart default PXELinux"
+      - "Kickstart default finish"
+      - "Kickstart default user data"
+    partition_tables:
+      - "Kickstart default"
+      - "Kickstart default thin"
+    architectures:
+      - x86_64
+    media: "CentOS Stream"
+    parameters:
+      - name: additional-packages
+        parameter_type: yaml
+        value:
+          - net-tools
+          - redhat-lsb
+      - name: autopart_options
+        parameter_type: string
+        value: "--type=plain --nohome --fstype=ext4"
+      - name: kernel_params
+        parameter_type: string
+        value: "console=ttyS1,115200n8 console=tty1 net.ifnames=0 biosdevname=0"
+      - name: selinux-mode
+        parameter_type: string
+        value: "disabled"
+  - name: "CentOS"
+    description: "CentOS Linux release 8.2.2004 (Core)"
+    family: "Redhat"
+    major: "8"
+    minor: "2.2004"
+    provisioning_templates:
+      - "Kickstart default iPXE"
+      - "Kickstart default"
+      - "Kickstart default PXELinux"
+      - "Kickstart default finish"
+      - "Kickstart default user data"
+    partition_tables:
+      - "Kickstart default"
+      - "Kickstart default thin"
+    architectures:
+      - x86_64
+    media: "CentOS Stream"
+    parameters:
+      - name: additional-packages
+        parameter_type: yaml
+        value:
+          - net-tools
+          - redhat-lsb
+      - name: autopart_options
+        parameter_type: string
+        value: "--type=plain --nohome --fstype=ext4"
+      - name: kernel_params
+        parameter_type: string
+        value: "console=ttyS1,115200n8 console=tty1 net.ifnames=0 biosdevname=0"
+      - name: selinux-mode
+        parameter_type: string
+        value: "disabled"
+  - name: "CentOS"
+    description: "CentOS Linux release 8.4.2105"
+    family: "Redhat"
+    major: "8"
+    minor: "4.2105"
+    provisioning_templates:
+      - "Kickstart default iPXE"
+      - "Kickstart default"
+      - "Kickstart default PXELinux"
+      - "Kickstart default finish"
+      - "Kickstart default user data"
+    partition_tables:
+      - "Kickstart default"
+    architectures:
+      - x86_64
+    media: "CentOS Stream"
+    parameters:
+      - name: additional-packages
+        parameter_type: yaml
+        value:
+          - net-tools
+          - redhat-lsb
+      - name: autopart_options
+        parameter_type: string
+        value: "--type=plain --nohome --fstype=ext4"
+      - name: kernel_params
+        parameter_type: string
+        value: "console=ttyS1,115200n8 console=tty1 net.ifnames=0 biosdevname=0"
+      - name: selinux-mode
+        parameter_type: string
+        value: "disabled"
+  - name: "CentOS"
+    description: "CentOS 9"
+    family: "Redhat"
+    major: "9"
+    minor: "0"
+    provisioning_templates:
+      - "Kickstart default iPXE"
+      - "Kickstart default"
+      - "Kickstart default PXELinux"
+      - "Kickstart default finish"
+      - "Kickstart default user data"
+    partition_tables:
+      - "Kickstart default"
+    architectures:
+      - x86_64
+    media: "CentOS 9 Stream"
+    parameters:
+      - name: additional-packages
+        parameter_type: yaml
+        value:
+          - net-tools
+          - redhat-lsb
+      - name: autopart_options
+        parameter_type: string
+        value: "--type=plain --nohome --fstype=ext4"
+      - name: kernel_params
+        parameter_type: string
+        value: "console=ttyS1,115200n8 console=tty1 net.ifnames=0 biosdevname=0"
+      - name: selinux-mode
+        parameter_type: string
+        value: "disabled"
+
+foreman_hostgroups:
+  - name: prod
+    description: Production Resource
+    domain: '{{ foreman_prod_domain }}'
+    subnet: 10.0.10.0/24
+  - name: physical
+    description: Physical resources
+  - name: virtual
+    description: Hypervisor Guests
+  - name: hypervisor
+    parent: physical
+    description: Hypervisor Hosts
+  - name: kvm
+    description: KVM Guests
+    parent: physical
+
+#foreman_discovery_rules:
+#  - name: DiscoverProdServers
+#    organizations: '{{ foreman_organization }}'
+#    locations: '{{ foreman_location }}'
+#    search: 'subnet.name = 10.0.10.0/24'
+#    hostgroup: physical
+#    enabled: false
+

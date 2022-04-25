@@ -4,6 +4,7 @@ export ANSIBLE_VAULT_PASSWORD_FILE=${VAULTPATH}/.vault.dev
 
 export ANSIBLE_INVENTORY=${VAULTPATH}/inventory
 export ANSIBLE_CONFIG=${VAULTPATH}/ansible.dev.cfg
+export ANSIBLE_ENVIRONMENT=dev
 
 if (( ${+VAULTPATH} )); then
 echo "Ansible Working Path: $VAULTPATH"
