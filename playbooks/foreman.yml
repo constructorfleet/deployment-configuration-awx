@@ -255,30 +255,30 @@
           theforeman.foreman.subnet:
             name: "{{ subnet.name }}"
             description: "{{ subnet.description | default(subnet.name) }}"
-            network: "{{ subnet.network }}"
+            network: "{{ subnet.network | default(subnet.name | split('/') | first) }}"
             mask: "{{ subnet.mask | default(omit) }}"
-            cidr: "{{ subnet.cidr | default(omit) }}"
+            cidr: "{{ subnet.cidr | default(subnet.name | default(omit)) }}"
             gateway: "{{ subnet.gateway }}"
             from_ip: "{{ subnet.from_ip | default(omit) }}"
             to_ip: "{{ subnet.to_ip | default(omit) }}"
             ipam: "{{ subnet.ipam | default(omit) }}"
-            dns_primary: "{{ subnet.dns_primary | default(omit) }}"
-            dns_secondary: "{{ subnet.dns_secondary | default(omit) }}"
+            dns_primary: "{{ subnet.dns_primary | default(default(subnet.name | split('/') | first)) | default(omit) }}"
+            dns_secondary: "{{ subnet.dns_secondary | default(secondary_dns_address) | default(omit) }}"
             boot_mode: "{{ subnet.boot_mode | default('Static') }}"
             domains: "{{ subnet.domains | default(omit) }}"
-            vlanid: "{{ subnet.vlanid | default(omit) }}"
+            vlanid: "{{ subnet.vlan_id | default(omit) }}"
             mtu: "{{ subnet.mtu | default(1500) }}"
             parameters: "{{ subnet.parameters | default(omit) }}"
             organizations: "{{ subnet.organizations | default(foreman_organization) }}"
             locations: "{{ subnet.locations | default(foreman_location) }}"
             discovery_proxy: "{{ (subnet.discovery_proxy | default(omit)) if (foreman_proxy_dhcp | default(False)) else omit }}"
-            dhcp_proxy: "{{ (subnet.dhcp_proxy | default(omit)) if (foreman_proxy_dhcp | default(False)) else omit }}"
+            dhcp_proxy: "{{ (subnet.dhcp_proxy | default(default_proxy) default(omit)) if (foreman_proxy_dhcp | default(False)) else omit }}"
             tftp_proxy: "{{ (subnet.tftp_proxy | default(omit)) if (foreman_proxy_tftp | default(False)) else omit }}"
             dns_proxy: "{{ (subnet.dns_proxy | default(omit)) if (foreman_proxy_tftp | default(False)) else omit }}"
             httpboot_proxy: "{{ (subnet.httpboot_proxy | default(omit)) if (foreman_proxy_tftp | default(False)) else omit }}"
             remote_execution_proxies: "{{ (subnet.remote_execution_proxies | default(omit)) if (foreman_proxy_remote_exec | default(False)) else omit }}"
             state: '{{ subnet.state | default("present") }}'
-          loop: '{{ foreman_subnets | default([]) }}'
+          loop: '{{ subnets | default([]) }}'
           loop_control:
             loop_var: subnet
             label: '{{ subnet.name }}'

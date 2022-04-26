@@ -1,6 +1,18 @@
 ---
 
+---
+
 roles:
   - src: https://github.com/ajanis/ansible-docker.git
     name: docker
     version: v3.7
+
+collections:
+  - name: theforeman.operations
+    version: 1.0.2
+  - name: theforeman.foreman
+    version: 3.2.0
+  - name: awx.awx
+    version: 16.0.0
+  - name: gearboxscott.dynamic_job_template_surveys
+    version: 0.3.0

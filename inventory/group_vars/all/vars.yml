@@ -18,8 +18,67 @@ organizations:
 domains:
   - name: dev.home.prettybaked.com
     description: Development Domain
+
   - name: home.prettybaked.com
     description: Production Domain
+
+default_proxies_enabled:
+  - tftp
+  - remote_execution
+  - discovery
+  - httpboot
+
+secondary_dns_address: 4.2.2.1
+
+subnets:
+  - name: 10.0.10.0/24
+    description: PROD VLAN 10
+    bridge_interface: br10
+    gateway: 10.0.10.1
+    boot_mode: DHCP
+    vlan_id: 10
+    domains:
+      - home.prettybaked.com
+      - dev.home.pretybaked.com
+    tftp_proxy: "smart-proxy"
+    remote_execution_proxies: "smart-proxy"
+    discovery_proxy: "smart-proxy"
+    httpboot_proxy: "smart-proxy"
+  - name: 10.0.100.0/24
+    description: Development subnet representation of VLAN 10
+    bridge_interface: br0
+    gateway: 10.0.100.1
+    boot_mode: DHCP
+    domains:
+      - dev.home.prettybaked.com
+    tftp_proxy: "smart-proxy"
+    remote_execution_proxies: "smart-proxy"
+    discovery_proxy: "smart-proxy"
+    httpboot_proxy: "smart-proxy"
+  - name: 10.0.120.0/23
+    description: Development subnet representation of VLAN 12
+    bridge_interface: 120
+    gateway: 10.0.120.1
+    vlan_id: 120
+    boot_mode: DHCP
+    domains:
+      - dev.home.prettybaked.com
+    tftp_proxy: "smart-proxy"
+    remote_execution_proxies: "smart-proxy"
+    discovery_proxy: "smart-proxy"
+    httpboot_proxy: "smart-proxy"
+  - name: 10.0.140.0/24
+    description: Development subnet representation of VLAN 14
+    bridge: 140
+    gateway: 10.0.140.1
+    vlan_id: 1140
+    boot_mode: DHCP
+    domains:
+      - dev.home.prettybaked.com
+    tftp_proxy: "smart-proxy"
+    remote_execution_proxies: "smart-proxy"
+    discovery_proxy: "smart-proxy"
+    httpboot_proxy: "smart-proxy"
 
 hostgroups:
   - name: base

@@ -95,38 +95,6 @@ foreman_compute_resources:
       url: qemu+tcp://10.0.100.100/system
       display_type: vnc
 
-foreman_subnets:
-  - name: 10.0.10.0/24
-    description: PROD VLAN 10
-    bridg: 10
-    gateway: 10.0.10.1
-    boot_mode: DHCP
-    domains:
-      - home.prettybaked.com
-      - dev.home.pretybaked.com
-  - name: 10.0.100.0/24
-    description: Development subnet representation of VLAN 10
-    bridg: br0
-    gateway: 10.0.100.1
-    boot_mode: DHCP
-    domains:
-      - dev.home.prettybaked.com
-  - name: 10.0.120.0/23
-    description: Development subnet representation of VLAN 12
-    bridge: 120
-    gateway: 10.0.120.1
-    boot_mode: DHCP
-    domains:
-      - dev.home.prettybaked.com
-  - name: 10.0.140.0/24
-    description: Development subnet representation of VLAN 14
-    bridge: 140
-    mask: 255.255.255.0
-    gateway: 10.0.140.1
-    boot_mode: DHCP
-    domains:
-      - dev.home.prettybaked.com
-
 foreman_installation_media:
   - name: CentOS 8 mirror
     os_family: Redhat
