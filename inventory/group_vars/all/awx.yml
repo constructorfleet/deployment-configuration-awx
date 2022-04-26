@@ -172,7 +172,7 @@ awx_projects:
     scm_type: git
     scm_credential: ansible-github
     scm_clean: yes
-    scm_branch: ci/linting
+    scm_branch: enhancement/symplify_foreman_awx
     scm_update_on_launch: no
     scm_url: git@github.com:constructorfleet/deployment-configuration-awx.git
     local_path: deployment-configuration-awx
