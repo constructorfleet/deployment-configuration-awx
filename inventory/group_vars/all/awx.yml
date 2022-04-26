@@ -123,7 +123,7 @@ awx_pg_admin_password: !vault |
           6435
 
 awx_inventories:
-  - name: Foreman Host Invenventory
+  - name: DEV - PrettyBaked.com
     description: Hosts retrieved from Foreman
     organization: '{{ (organizations | first)["name"] }}'
     source:
