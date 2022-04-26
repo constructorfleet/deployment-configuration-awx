@@ -174,7 +174,7 @@
             update_on_project_update: '{{ inv.source.update_on_project | default(omit) }}'
             source_project: '{{ inv.source.project | default(omit) }}'
             state: '{{ inv.source.state | default("present") }}'
-            validate_certs: '{{ awx.validate_certs}}'
+            validate_certs: '{{ awx.validate_certs }}'
             tower_host: "{{ awx_server_url }}"
             tower_oauthtoken: '{{ tower_token }}'
           loop: '{{ awx_inventories | default([]) }}'
