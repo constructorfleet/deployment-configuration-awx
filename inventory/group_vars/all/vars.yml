@@ -22,25 +22,25 @@ domains:
     description: Production Domain
 
 hostgroups:
-  base:
+  - name: base
     description: Parent of all the groups
     children:
-      physical:
+      - name: physical
         description: Bare metal hosts
         children:
-          hypervisor:
+          - name: hypervisor
             description: Host capable of virtualization
-      virtual:
+      - name: virtual
         description: Virtualized guest hosts
         properties:
           host: '{{ SOME TEMPLATE }}'
         children:
-          libvirt:
+          - name: libvirt
             description: KVM virtual machine
             protperties:
               control_url: 'qemu+blah://'
               other_facts: ''
-          ovirt:
+          - name: ovirt
             description: oVirt virtual machine
 
 # Foreman Common Properties
@@ -74,7 +74,8 @@ awx_docker_compose_dir: /var/lib/awxcompose
 awx_postgres_data_dir: /var/lib/awxpostgres
 awx_project_data_dir: /etc/ansible
 awx:
-  url: 'http://build.dev.home.prettybaked.com:8080'
+  url: 'http://build.dev.home.prettybaked.com'
+  port: 8080
   validate_certs: false
   admin_user: !vault |
           $ANSIBLE_VAULT;1.1;AES256
