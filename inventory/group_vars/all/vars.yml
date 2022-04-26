@@ -110,7 +110,7 @@ hostgroups:
 
 # Foreman Common Properties
 foreman:
-  url: 'https://build.dev.home.prettybaked.com'
+  url: 'https://10.0.100.25'
   validate_certs: false
   admin_username: !vault |
           $ANSIBLE_VAULT;1.1;AES256

@@ -23,11 +23,11 @@ foreman_options:
   - "foreman-proxy-tftp-root={{ foreman_tftp_root }}"
   - foreman-proxy-httpboot=true
   - foreman-proxy-httpboot-listen-on=http
-  - foreman-foreman-url=https://build.dev.home.prettybaked.com
+  - foreman-foreman-url=https://10.0.100.25
   - foreman-websockets-encrypt=false
   - foreman-proxy-bind-host=0.0.0.0
   - foreman-proxy-ssl=true
-  - "foreman-proxy-foreman-base-url=https://build.dev.home.prettybaked.com"
+  - "foreman-proxy-foreman-base-url=https://10.0.100.25"
   - 'foreman-initial-admin-username={{ foreman_username }}'
   - 'foreman-initial-admin-password={{ foreman_password }}'
 
