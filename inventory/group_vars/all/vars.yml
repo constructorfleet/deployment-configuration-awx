@@ -84,11 +84,17 @@ hostgroups:
   - name: base
     description: Parent of all the groups
     children:
+      - name: builder
+        description: Builds and configures hosts
       - name: physical
         description: Bare metal hosts
         children:
           - name: hypervisor
             description: Host capable of virtualization
+          - name: storage
+            description: Storage device
+          - name: machine-learning
+            description: Automation, ML/AI
       - name: virtual
         description: Virtualized guest hosts
 #        parameters:

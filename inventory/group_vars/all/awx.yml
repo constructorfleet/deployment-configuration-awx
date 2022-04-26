@@ -137,6 +137,14 @@ awx_inventories:
         want_ostcollections: false
         want_params: true
 
+awx_job_templates:
+  - name: Install/Upgrade Foreman Instance
+    project: Provisioning and Deployment
+    playbook: playbooks/foreman.yml
+  - name: Install/Upgrade AWX Instance
+    project: Provisioning and Deployment
+    playbook: playbooks/awx.yml
+
 awx_credentials:
   - name: ansible-root
     credential_type: Machine
