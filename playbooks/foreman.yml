@@ -11,6 +11,7 @@
         file: tasks/convert_variables_to_expected_format.yml
       tags:
         - always
+
     - name: Install Foreman
       block:
         - name: Ensure Foreman user/group/directories/files exist

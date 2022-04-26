@@ -97,14 +97,12 @@ hostgroups:
             description: Automation, ML/AI
       - name: virtual
         description: Virtualized guest hosts
-#        parameters:
-#          host: '{{ SOME TEMPLATE }}'
         children:
           - name: libvirt
             description: KVM virtual machine
-#            protperties:
-#              control_url: 'qemu+blah://'
-#              other_facts: ''
+            children:
+              - name: Foreman
+                description: Foreman Host Classifier and Build Service
           - name: ovirt
             description: oVirt virtual machine
 
