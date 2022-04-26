@@ -90,7 +90,7 @@
     - name: Configure AWX
       block:
         - name: Create AWX OAuth Token
-          awx.awx.tower_token:
+          awx.awx.tower_token:  # noqa
             description: Build Server Configuring AWX
             scope: write
             state: present
