@@ -3,7 +3,7 @@
 - name: Translate LDAP authentication to Foreman
   ansible.builtin.set_fact:
     forman_ldap_auth:
-      - name: 'TODO'
+      - name: '{{ ldap_authentication.ldap_server }}'
         host: '{{ ldap_authentication.host }}'
         port: '{{ ldap_authentication.port }}'
         tls: '{{ ldap_authentication.server_tls }}'
@@ -107,6 +107,23 @@
           {%- endfor -%}
           {{ ns.organization_map }}
 
+- name: Convert hostgroups to a childe->parent map
+  ansible.builtin.set_fact:
+    user_group_hierarchy:
+      {%- set ns = namespace(groups=[]) -%}
+      {%- macro recurse(hostgroup_spec,current) -%}
+        {%- for group_name, group_spec in hostgroup_spec.items()  -%}
+          {%- if group_spec.children.items is defined -%}
+            {{ recurse(group_spec.children, current + [group_name]) }}
+          {%- else -%}
+            {%- set ns.groups = ns.groups + [current + [group_name]] -%}
+            {{ current + [group_name] }}
+          {%- endif -%}
+        {%- endfor -%}
+      {%- endmacro -%}
+      {%- set temp = recurse(hostgroups, []) -%}
+      {{ ns.groups | to_nice_yaml }}
+
 - name: Generate the AWX Compose Project
   ansible.builtin.set_fact:
     awx_compose_project:
@@ -172,7 +189,7 @@
                 - postgres
                 - task
               ports:
-                - "{{ awx_host_port }}:8052"  # TODO
+                - "{{ awx.port }}:8052"
               networks:
                 awx:
                   aliases:
