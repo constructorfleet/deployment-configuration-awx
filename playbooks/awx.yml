@@ -96,8 +96,8 @@
             state: present
             validate_certs: false
             tower_host: "{{ awx_server_url }}"
-            tower_username: "{{ awx_admin_user }}"
-            tower_password: "{{ awx_admin_password }}"
+            tower_username: "{{ awx.admin_user }}"
+            tower_password: "{{ awx.admin_password }}"
 
         - name: Create AWX Organizations
           awx.awx.tower_organization:
@@ -158,29 +158,31 @@
 
         - name: Create AWX Inventory Sources
           awx.awx.tower_inventory_source:
-            name: '{{ inv_source.name }}'
-            description: '{{ inv_source.description | default(omit) }}'
-            inventory: '{{ inv_source.inventory_name }}'
-            source: '{{ inv_source.kind }}'
-            source_path: '{{ inv_source.path | default(omit) }}'
-            source_vars: '{{ inv_source.variables | default(omit) }}'
-            enabled_var: '{{ inv_source.enabled.var | default(omit) }}'
-            enabled_value: '{{ inv_source.enabled.value | default(omit) }}'
-            host_filter: '{{ inv_source.host_filter | default(omit) }}'
-            credential: '{{ inv_source.credential | default(omit) }}'
-            overwrite: '{{ inv_source.overwrite | default(omit) }}'
-            overwrite_vars: '{{ inv_source.overwrite_vars | default(omit) }}'
-            update_on_launch: '{{ inv_source.update_on_launch | default(True) }}'
-            update_on_project_update: '{{ inv_source.update_on_project | default(omit) }}'
-            source_project: '{{ inv_source.project | default(omit) }}'
-            state: '{{ inv_source.state | default("present") }}'
-            validate_certs: false
+            name: '{{ inv.source.name }}'
+            description: '{{ inv.source.description | default(omit) }}'
+            inventory: '{{ inv.name }}'
+            source: '{{ inv.source.kind }}'
+            source_path: '{{ inv.source.path | default(omit) }}'
+            source_vars: '{{ inv.source.variables | default(omit) }}'
+            enabled_var: '{{ inv.source.enabled.var | default(omit) }}'
+            enabled_value: '{{ inv.source.enabled.value | default(omit) }}'
+            host_filter: '{{ inv.source.host_filter | default(omit) }}'
+            credential: '{{ inv.source.credential | default(omit) }}'
+            overwrite: '{{ inv.source.overwrite | default(omit) }}'
+            overwrite_vars: '{{ inv.source.overwrite_vars | default(omit) }}'
+            update_on_launch: '{{ inv.source.update_on_launch | default(True) }}'
+            update_on_project_update: '{{ inv.source.update_on_project | default(omit) }}'
+            source_project: '{{ inv.source.project | default(omit) }}'
+            state: '{{ inv.source.state | default("present") }}'
+            validate_certs: '{{ awx.validate_certs}}'
             tower_host: "{{ awx_server_url }}"
             tower_oauthtoken: '{{ tower_token }}'
-          loop: '{{ awx_inventory_sources | default([]) }}'
+          loop: '{{ awx_inventories | default([]) }}'
           loop_control:
-            loop_var: inv_source
-            label: '{{ inv_source.name }}'
+            loop_var: inv
+            label: '{{ inv.source.name }}'
+          when:
+            - inv.source is defined
 
         - name: Update AWX LDAP Settings
           awx.awx.tower_settings:
@@ -222,8 +224,8 @@
             validate_certs: false
             tower_host: "{{ awx_server_url }}"
             tower_oauthtoken: '{{ tower_token }}'
-            tower_username: "{{ awx_admin_user }}"
-            tower_password: "{{ awx_admin_passward }}"
+            tower_username: "{{ awx.admin_user }}"
+            tower_password: "{{ awx.admin_password }}"
           when:
             - tower_token is defined
       tags:

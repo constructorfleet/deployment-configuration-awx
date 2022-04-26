@@ -2,7 +2,7 @@
 
 - name: Translate LDAP authentication to Foreman
   ansible.builtin.set_fact:
-    forman_ldap_auth:
+    foreman_auth_sources_ldap:
       - name: '{{ ldap_authentication.ldap_server }}'
         host: '{{ ldap_authentication.host }}'
         port: '{{ ldap_authentication.port }}'
@@ -10,7 +10,7 @@
         onthefly_register: true
         server_type: posix
         account: '{{ ldap_authentication.account_dn }}'
-        account_password: '{{ ldap_authentication.account_password}}'
+        account_password: '{{ ldap_authentication.account_password }}'
         base_dn: '{{ ldap_authentication.base_dn }}'
         groups_base: '{{ ldap_authentication.groups_base }}'
         attr_login: '{{ ldap_authentication.attr_login }}'
@@ -34,17 +34,17 @@
         value: PosixGroupType
       - name: AUTH_LDAP_USER_SEARCH
         value:
-          - '{{ ldap_authentication.users_base}}'
+          - '{{ ldap_authentication.users_base }}'
           - SCOPE_SUBTREE
           - (uid=%(user)s)
       - name: AUTH_LDAP_GROUP_SEARCH
         value:
-          - '{{ ldap_authentication.groups_base }}'
+          - '{{ ldap_authentication.groups_base  }}'
           - SCOPE_SUBTREE
           - (objectClass=posixGroup)
       - name: AUTH_LDAP_USER_ATTR_MAP
         value:
-          first_name: '{{ ldap_authentication.attr_firstname}}'
+          first_name: '{{ ldap_authentication.attr_firstname }}'
           last_name: '{{ ldap_authentication.attr_lastname }}'
           email: '{{ ldap_authentication.attr_mail }}'
       - name: AUTH_LDAP_GROUP_TYPE_PARAMS
@@ -58,7 +58,7 @@
         value: '{{ ldap_authentication.account_password }}'
       - name: AUTH_LDAP_ORGANIZATION_MAP
         value: |
-          {%- set ns = namespace(organization_map={}, attrs={})-%}
+          {%- set ns = namespace(organization_map={}, attrs={}) -%}
           {%- for org in organizations -%}
             {%- if org.usergroups is defined -%}
               {%- set ns.attrs = {} -%}
@@ -109,26 +109,33 @@
 
 - name: Convert hostgroups to a childe->parent map
   ansible.builtin.set_fact:
-    user_group_hierarchy:
+    user_group_hierarchy: |
       {%- set ns = namespace(groups=[]) -%}
-      {%- macro recurse(hostgroup_spec,current) -%}
-        {%- for group_name, group_spec in hostgroup_spec.items()  -%}
-          {%- if group_spec.children.items is defined -%}
-            {{ recurse(group_spec.children, current + [group_name]) }}
+      {%- macro recurse(hostgroup_spec,current,parent) -%}
+        {%- for group_spec in hostgroup_spec -%}
+          {%- if group_spec.children is defined -%}
+            {%- set children = group_spec.pop('children') -%}
+            {{
+              recurse(
+                children,
+                [current + [group_spec | combine({'parent': parent})]],
+                group_spec.name
+              )
+            }}
           {%- else -%}
-            {%- set ns.groups = ns.groups + [current + [group_name]] -%}
-            {{ current + [group_name] }}
+            {%- set ns.groups = [ns.groups + [current + [group_spec | combine({'parent': parent})]]] -%}
+            {{ [current + [group_spec | combine({'parent': parent})]] }}
           {%- endif -%}
         {%- endfor -%}
       {%- endmacro -%}
-      {%- set temp = recurse(hostgroups, []) -%}
-      {{ ns.groups | to_nice_yaml }}
+      {%- set x = recurse(hostgroups, []) -%}
+      {{ ns.groups | flatten }}
 
 - name: Generate the AWX Compose Project
   ansible.builtin.set_fact:
     awx_compose_project:
       - project_name: awx
-        pull: yes
+        pull: true
 
         definition:
           version: '3.5'
@@ -177,7 +184,7 @@
                 https_proxy: "{{ https_proxy | default('') }}"
                 no_proxy: "{{ no_proxy | default('') }}"
               logging:
-                << : *default-logging
+                <<: *default-logging
                 options:
                   tag: awx-postgres
 
@@ -211,7 +218,7 @@
                 https_proxy: "{{ https_proxy | default('') }}"
                 no_proxy: "{{ no_proxy | default('') }}"
               logging:
-                << : *default-logging
+                <<: *default-logging
                 options:
                   tag: awx-web
 
@@ -244,41 +251,42 @@
                 https_proxy: "{{ https_proxy | default('') }}"
                 no_proxy: "{{ no_proxy | default('') }}"
               logging:
-                << : *default-logging
+                <<: *default-logging
                 options:
                   tag: awx-web
 
-foreman_system_users:
-  - name: foreman
-    uid: 998
-    gid: 998
-    home_dir: /usr/share/foreman
-    directories:
-      - name: .ssh
-        mode: '0755'
-        files:
-          - source: id_rsa.foreman
-            dest: id_rsa
-            decrypt: true
-            mode: '0600'
-          - source: id_rsa.foreman.pub
-            dest: id_rsa.pub
-            decrypt: true
-            mode: '0644'
-  - name: foreman-proxy
-    uid: 997
-    gid: 997
-    home_dir: /usr/share/foreman-proxy
-    directories:
-      - name: .ssh
-        mode: '0755'
-        files:
-          - source: id_rsa_foreman_proxy
-            dest: id_rsa_foreman_proxy
-            decrypt: true
-            mode: '0600'
-          - source: id_rsa_foreman_proxy.pub
-            dest: id_rsa_foreman_proxy.pub
-            decrypt: true
-            mode: '0644'
-
+- name: Set system users for Foreman
+  ansible.builtin.set_fact:
+    foreman_system_users:
+      - name: foreman
+        uid: 998
+        gid: 998
+        home_dir: /usr/share/foreman
+        directories:
+          - name: .ssh
+            mode: '0755'
+            files:
+              - source: id_rsa.foreman
+                dest: id_rsa
+                decrypt: true
+                mode: '0600'
+              - source: id_rsa.foreman.pub
+                dest: id_rsa.pub
+                decrypt: true
+                mode: '0644'
+      - name: foreman-proxy
+        uid: 997
+        gid: 997
+        home_dir: /usr/share/foreman-proxy
+        directories:
+          - name: .ssh
+            mode: '0755'
+            files:
+              - source: id_rsa_foreman_proxy
+                dest: id_rsa_foreman_proxy
+                decrypt: true
+                mode: '0600'
+              - source: id_rsa_foreman_proxy.pub
+                dest: id_rsa_foreman_proxy.pub
+                decrypt: true
+                mode: '0644'

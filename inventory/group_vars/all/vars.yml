@@ -32,14 +32,14 @@ hostgroups:
             description: Host capable of virtualization
       - name: virtual
         description: Virtualized guest hosts
-        properties:
-          host: '{{ SOME TEMPLATE }}'
+#        parameters:
+#          host: '{{ SOME TEMPLATE }}'
         children:
           - name: libvirt
             description: KVM virtual machine
-            protperties:
-              control_url: 'qemu+blah://'
-              other_facts: ''
+#            protperties:
+#              control_url: 'qemu+blah://'
+#              other_facts: ''
           - name: ovirt
             description: oVirt virtual machine
 
@@ -74,7 +74,7 @@ awx_docker_compose_dir: /var/lib/awxcompose
 awx_postgres_data_dir: /var/lib/awxpostgres
 awx_project_data_dir: /etc/ansible
 awx:
-  url: 'http://build.dev.home.prettybaked.com'
+  url: 'http://10.0.100.25'
   port: 8080
   validate_certs: false
   admin_user: !vault |
@@ -101,6 +101,7 @@ vault_password: !vault |
           34396632333861393733376334343737376337303030666133633565366565353365363666346532
           3661306562643932360a626230393366326665393331626430353839343234626531623337336432
           34373230396462376561306135356530616639323032643736653232323837383734
+awx_server_url: '{{ awx.url  }}:{{ awx.port }}'
 
 # Variables for Implementing LDAP Authentication
 ldap_server: ldap.home.prettybaked.com

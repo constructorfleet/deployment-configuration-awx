@@ -123,9 +123,9 @@ awx_pg_admin_password: !vault |
           6435
 
 awx_inventories:
-  - name: Main Inventory
-    description: '{{ awx_inventory_description }}'
-    organization: '{{ (awx_organizations | first)["name"] }}'
+  - name: Foreman Host Invenventory
+    description: Hosts retrieved from Foreman
+    organization: '{{ (organizations | first)["name"] }}'
     source:
       name: Foreman Hosts
       credential: Foreman

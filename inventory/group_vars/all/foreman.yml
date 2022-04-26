@@ -85,7 +85,7 @@ foreman_global_parameters:
     value: ADMIN
   - name: bmc_password
     parameter_type: string
-    value: "{{ foreman_bmc_password }}"
+    value: "{{ foreman.bmc_password }}"
 
 
 foreman_compute_resources:

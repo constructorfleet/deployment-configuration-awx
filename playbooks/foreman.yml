@@ -201,8 +201,8 @@
             pxe_loader: "{{ hostgroup.pxe_loader | default(omit) }}"
             domain: "{{ hostgroup.domain | default(omit) }}"
             subnet: "{{ hostgroup.subnet | default(omit) }}"
-            locations: "{{ hostgroup.locations | default(foreman_location) }}"
-            organization: "{{ hostgroup.organizations | default(foreman_organization) }}"
+            locations: "{{ hostgroup.locations | default(omit) }}"
+            organization: "{{ hostgroup.organizations | default(omit) }}"
             parent: "{{ hostgroup.parent | default(omit) }}"
             compute_resource: "{{ hostgroup.compute_resource | default(omit) }}"
             parameters: "{{ hostgroup.parameters | default(omit) }}"
@@ -335,9 +335,9 @@
           when:
             - "'enable-foreman-plugin-discovery' in foreman_options or 'enable-foreman-proxy-plugin-discovery' in foreman_options"
       environment:  # theforeman.foreman collection does not utilize no_log on password argument - set ENV instead
-        FOREMAN_SERVER_URL: '{{ foreman_server_url }}'
-        FOREMAN_USERNAME: '{{ foreman_username }}'
-        FOREMAN_PASSWORD: '{{ foreman_password }}'
+        FOREMAN_SERVER_URL: '{{ foreman.url }}'
+        FOREMAN_USERNAME: '{{ foreman.admin_username }}'
+        FOREMAN_PASSWORD: '{{ foreman.admin_password }}'
         FOREMAN_VALIDATE_CERTS: false
       tags:
         - configure-foreman
