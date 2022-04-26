@@ -176,3 +176,4 @@ awx_projects:
     scm_update_on_launch: no
     scm_url: git@github.com:constructorfleet/deployment-configuration-awx.git
     local_path: deployment-configuration-awx
+    credentials: ansible-vault
