@@ -11,6 +11,10 @@
         file: tasks/convert_variables_to_expected_format.yml
       tags:
         - always
+        - install-foreman
+        - configure-foreman
+        - installl-awx
+        - configure-awx
 
     - name: Install Foreman
       block:
@@ -38,6 +42,7 @@
           vars:
             update_cache: true
             foreman_installer_options: "{{ ([''] + foreman_options) | join(' --') | split(' ') | reject('eq', '') | list }}"
+      when: false
       tags:
         - install-foreman
 

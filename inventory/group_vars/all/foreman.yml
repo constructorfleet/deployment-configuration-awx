@@ -430,3 +430,22 @@ foreman_operating_systems:
       - name: selinux-mode
         parameter_type: string
         value: "disabled"
+
+foreman_auth_sources_ldap:
+  - name: '{{ ldap_authentication.server }}'
+    host: '{{ ldap_authentication.host }}'
+    port: '{{ ldap_authentication.server_port }}'
+    tls: '{{ ldap_authentication.server_tls }}'
+    onthefly_register: true
+    server_type: posix
+    account: '{{ ldap_authentication.account_dn }}'
+    account_password: '{{ ldap_authentication.account_password }}'
+    base_dn: '{{ ldap_authentication.base_dn }}'
+    groups_base: '{{ ldap_authentication.groups_base }}'
+    attr_login: '{{ ldap_authentication.attr_login }}'
+    attr_firstname: '{{ ldap_authentication.attr_firstname }}'
+    attr_lastname: '{{ ldap_authentication.attr_lastname }}'
+    attr_mail: '{{ ldap_authentication.attr_mail }}'
+    ldap_filter: (&(objectClass=posixAccount)(|(gidNumber=1042)(gidNumber=2002)))
+    locations: '{{ foreman_location }}'
+    usergroup_sync: true
