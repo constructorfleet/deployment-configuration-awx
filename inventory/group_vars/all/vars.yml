@@ -84,7 +84,7 @@ hostgroups:
   - name: base
     description: Parent of all the groups
     children:
-      - name: builder
+      - name: buildsr
         description: Builds and configures hosts
       - name: physical
         description: Bare metal hosts
@@ -101,7 +101,13 @@ hostgroups:
           - name: libvirt
             description: KVM virtual machine
             children:
-              - name: Foreman
+              - name: buildservices
+                descripiton: Build services host
+                children:
+                  - name: foreman
+                    description: Foreman Instance
+                  - name: awx
+                    description: AWX Instancee
                 description: Foreman Host Classifier and Build Service
           - name: ovirt
             description: oVirt virtual machine
