@@ -6,7 +6,7 @@
       - name: SESSION_COOKIE_AGE
         value: "28800"
       - name: AUTH_LDAP_SERVER_URI
-        value: 'ldap://{{ ldap_authentication.host }}:{{ ldap_authentication.port }}'
+        value: 'ldap://{{ ldap_authentication.host }}:{{ ldap_authentication.server_port }}'
       - name: AUTH_LDAP_BIND_DN
         value: '{{ ldap_authentication.account_dn }}'
       - name: AUTH_LDAP_GROUP_TYPE
@@ -42,7 +42,7 @@
             {%- if org.usergroups is defined -%}
               {%- set ns.attrs = {} -%}
               {%- set admin =
-                  (org.usergroups
+                  org.usergroups
                     | default([])
                     | rejectattr('admin', 'undefined')
                     | rejectattr('ldap_cn', 'undefined')
@@ -50,14 +50,16 @@
                     | selectattr('ldap_cn', 'string')
                     | list
                     | first
-                    | default(None)-%}
+                    | default(None) -%}
               {%- if admin is not none -%}
                 {%- set ns.attrs =
-                    ns.attrs
-                      | combine({
-                        'admins': 'cn=' ~ admin['ldap_cn'] ~ ',' ~ ldap_authentication.groups_base,
-                        'remove_admins': False
-                      })
+                      ns.attrs
+                        | combine(
+                          {
+                            'admins': 'cn=' ~ admin['ldap_cn'] ~ ',' ~ ldap_authentication.groups_base,
+                            'remove_admins': False
+                          }
+                        )
                 -%}
               {%- endif -%}
               {%- set user =
@@ -66,14 +68,16 @@
                     | rejectattr('admin', 'defined')
                     | list
                     | first
-                    | default(None))-%}
+                    | default(None)) -%}
               {%- if user is not none -%}
                 {%- set ns.attrs =
                     ns.attrs
-                      | combine({
-                        'users': 'cn=' ~ user['ldap_cn'] ~ ',' ~ ldap_authentication.groups_base,
-                        'remove_users': False
-                      })
+                      | combine(
+                        {
+                          'users': 'cn=' ~ user['ldap_cn'] ~ ',' ~ ldap_authentication.groups_base,
+                          'remove_users': False
+                        }
+                      )
                 -%}
               {%- endif -%}
               {%- set ns.organization_map =
