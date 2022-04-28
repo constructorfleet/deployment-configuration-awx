@@ -133,8 +133,14 @@
           services:
             redis:
               image: redis
-              container_name: awx_redis
+              container_name: awx-redis
+              hostname: awx-redis
               restart: unless-stopped
+              networks:
+                awx:
+                  aliases:
+                    - redis
+                    - awx_redis
               environment:
                 http_proxy: "{{ http_proxy | default('') }}"
                 https_proxy: "{{ https_proxy | default('') }}"
