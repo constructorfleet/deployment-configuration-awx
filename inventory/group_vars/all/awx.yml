@@ -141,9 +141,15 @@ awx_job_templates:
   - name: Install/Upgrade Foreman Instance
     project: Provisioning and Deployment
     playbook: playbooks/foreman.yml
+    credentials:
+      - ansible-root
+      - ansible-vault
   - name: Install/Upgrade AWX Instance
     project: Provisioning and Deployment
     playbook: playbooks/awx.yml
+    credentials:
+      - ansible-root
+      - ansible-vault
 
 awx_credentials:
   - name: ansible-root
