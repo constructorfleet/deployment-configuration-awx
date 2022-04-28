@@ -106,7 +106,15 @@ awx_notification_email: !vault |
           31363536333262373163356634646331373233613533383063393765323065383962343664663065
           3230373838663662650a396466393338313964363639326535626432373065353964373132393865
           64363164663336383364636330383631343834326162386538653430366662333237
-
+awx_pg_database: awx
+awx_pg_port: 5432
+awx_pg_username: !vault |
+          $ANSIBLE_VAULT;1.1;AES256
+          36306436626132326336366164623532343231336336343331333530393436386365323961623737
+          3430306361633631343165643562653435616461666638310a373639333765636639323238383036
+          61623030646361613431623930326261343933396235393238303039623962636263386235356339
+          6134623163646366360a303330366230353362393634636361343263383365333030393233356662
+          3531
 awx_pg_password: !vault |
           $ANSIBLE_VAULT;1.1;AES256
           65393738386262666264343366613236616136653335313233646634323636343064656630646663
@@ -177,8 +185,44 @@ awx_projects:
     description: Provision, Deploy and Configuration of Systems
     scm_type: git
     scm_credential: ansible-github
-    scm_clean: yes
+    scm_clean: true
     scm_branch: enhancement/symplify_foreman_awx
-    scm_update_on_launch: yes
+    scm_update_on_launch: true
     scm_url: git@github.com:constructorfleet/deployment-configuration-awx.git
     local_path: deployment-configuration-awx
+
+awx_ldap_auth:
+  - name: SESSION_COOKIE_AGE
+    value: "28800"
+  - name: AUTH_LDAP_SERVER_URI
+    value: "ldap://{{ ldap_authentication.host }}:{{ ldap_authentication.server_port }}"
+  - name: AUTH_LDAP_BIND_DN
+    value: "{{ ldap_authentication.account_dn }}"
+  - name: AUTH_LDAP_GROUP_TYPE
+    value: PosixGroupType
+  - name: AUTH_LDAP_USER_SEARCH
+    value:
+      - "{{ ldap_authentication.users_base }}"
+      - SCOPE_SUBTREE
+      - (uid=%(user)s)
+  - name: AUTH_LDAP_GROUP_SEARCH
+    value:
+      - "{{ ldap_authentication.groups_base  }}"
+      - SCOPE_SUBTREE
+      - (objectClass=posixGroup)
+  - name: AUTH_LDAP_USER_ATTR_MAP
+    value:
+      first_name: "{{ ldap_authentication.attr_firstname }}"
+      last_name: "{{ ldap_authentication.attr_lastname }}"
+      email: "{{ ldap_authentication.attr_mail }}"
+  - name: AUTH_LDAP_GROUP_TYPE_PARAMS
+    value:
+      name_attr: cn
+  - name: AUTH_LDAP_USER_FLAGS_BY_GROUP
+    value:
+      is_superuser:
+        - "cn=admin,{{ ldap_authentication.groups_base }}"
+  - name: AUTH_LDAP_BIND_PASSWORD
+    value: "{{ ldap_authentication.account_password }}"
+  - name: AUTH_LDAP_ORGANIZATION_MAP
+    value: "{{ organizations | community.general.json_query('[*].{ org: name, groups: { admins: join(`,`, [join(``, [`cn=`, usergroups[?admin].ldap_cn | [0]]), `|groups_base|`]), users: join(`,`, [join(``, [`cn=`, usergroups[?!admin].ldap_cn | [0]]), `|groups_base|`])}}') | to_json | replace('|groups_base|', ldap_authentication.groups_base) | from_json | items2dict(key_name='org', value_name='groups') }}"

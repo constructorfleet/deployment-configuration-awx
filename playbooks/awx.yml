@@ -12,7 +12,8 @@
       ansible.builtin.include_tasks:
         file: tasks/convert_variables_to_expected_format.yml
       tags:
-        - always
+        - install-awx
+        - configure-awx
 
     - name: Install AWX
       block:
@@ -84,6 +85,13 @@
           loop:
             - awx-web
             - awx-task
+
+        - name: Install Tower CLI Python Package
+          ansible.builtin.command:
+            cmd: "docker exec {{ item }} '/usr/bin/python3' '-m' 'pip' 'install' '--upgrade' 'jmespath'"
+          loop:
+            - awx-web
+            - awx-task
       tags:
         - install-awx
 
@@ -106,7 +114,7 @@
             validate_certs: "{{ awx.validate_certs }}"
             tower_host: "{{ awx_server_url }}"
             tower_oauthtoken: '{{ tower_token }}'
-          loop: '{{ awx_organizations | default([]) }}'
+          loop: '{{ organizations | default([]) }}'
           loop_control:
             label: '{{ item.name }}'
 
@@ -186,13 +194,10 @@
 
         - name: Update AWX LDAP Settings
           awx.awx.tower_settings:
-            settings: "{{ awx_ldap_settings | items2dict(key_name='name', value_name='value') | default([]) }}"
+            settings: "{{ awx_ldap_auth | items2dict(key_name='name', value_name='value') | default([]) }}"
             validate_certs: "{{ awx.validate_certs }}"
             tower_host: "{{ awx_server_url }}"
             tower_oauthtoken: '{{ tower_token }}'
-          when:
-            - awx_ldap_settings is defined
-            - awx_ldap_settings is sequence
 
         - name: Add projects to Tower
           awx.awx.tower_project:

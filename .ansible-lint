@@ -11,6 +11,7 @@ exclude_paths:
 - .venv/
 - roles/
 - collections/
+- playbooks/inventory.yml
 
 parseable: true
 # quiet: true
@@ -33,6 +34,7 @@ mock_modules:
   - awx.awx.tower_inventory_source
   - awx.awx.tower_settings
   - awx.awx.tower_project
+  - awx.awx.tower_job_template
 
 # Enable checking of loop variable prefixes in roles
 #loop_var_prefix: "{role}_"

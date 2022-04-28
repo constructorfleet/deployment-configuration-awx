@@ -4,7 +4,7 @@ organizations:
   - name: Default
     usergroups:
       - name: administrators
-        admin: yes
+        admin: true
         ldap_cn: admin
       - name: managers
         roles:
@@ -112,6 +112,28 @@ hostgroups:
           - name: ovirt
             description: oVirt virtual machine
 
+user_group_hierarchy: |
+  {%- set ns = namespace(groups=[]) -%}
+  {%- macro recurse(hostgroup_spec,current,parent) -%}
+    {%- for group_spec in hostgroup_spec -%}
+      {%- if group_spec.children is defined -%}
+        {%- set children = group_spec.pop('children') -%}
+        {{
+          recurse(
+            children,
+            [current + [group_spec | combine({'parent': parent})]],
+            group_spec.name
+          )
+        }}
+      {%- else -%}
+        {%- set ns.groups = [ns.groups + [current + [group_spec | combine({'parent': parent})]]] -%}
+        {{ [current + [group_spec | combine({'parent': parent})]] }}
+      {%- endif -%}
+    {%- endfor -%}
+  {%- endmacro -%}
+  {%- set x = recurse(hostgroups, [], None) -%}
+  {{ ns.groups | flatten }}
+
 # Foreman Common Properties
 foreman:
   url: 'https://10.0.100.25'
@@ -143,7 +165,7 @@ awx_docker_compose_dir: /var/lib/awxcompose
 awx_postgres_data_dir: /var/lib/awxpostgres
 awx_project_data_dir: /etc/ansible
 awx:
-  url: 'http://10.0.100.25'
+  url: 'http://{{ ansible_default_ipv4.address }}'
   port: 8080
   validate_certs: false
   admin_user: !vault |
@@ -160,9 +182,6 @@ awx:
           63366263663261303939646331313561386630356437653862633839323035393338643031643964
           6164663066626664390a326136633235393766326638333765323434663765376634386635373638
           3732
-
-
-
 vault_password: !vault |
           $ANSIBLE_VAULT;1.1;AES256
           35333030363032303365393664393937663561343036333335616565613461636332666138636537
@@ -175,7 +194,7 @@ awx_server_url: '{{ awx.url  }}:{{ awx.port }}'
 # Variables for Implementing LDAP Authentication
 ldap_server: ldap.home.prettybaked.com
 ldap_server_port: 389
-ldap_server_tls: no
+ldap_server_tls: false
 ldap_base_dn: 'dc={{ ",dc=".join( ldap_server.split(".")) }}'
 
 ldap_authentication:

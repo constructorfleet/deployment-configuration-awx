@@ -31,8 +31,6 @@ foreman_options:
   - 'foreman-initial-admin-username={{ foreman_username }}'
   - 'foreman-initial-admin-password={{ foreman_password }}'
 
-
-
 foreman_ssh_public_key: !vault |
           $ANSIBLE_VAULT;1.1;AES256
           37643831303237636437363661376439633430396234343539376565366364373430646238363166
