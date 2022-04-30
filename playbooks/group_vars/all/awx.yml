@@ -142,8 +142,11 @@ awx_inventories:
       update_on_launch: true
       variables:
         want_facts: true
-        want_ostcollections: false
+        want_host_group: true
+        want_hostcollections: false
         want_params: true
+        group_prefix: ''
+
 
 awx_job_templates:
   - name: Install/Upgrade Foreman Instance

@@ -81,36 +81,13 @@ subnets:
     httpboot_proxy: "smart-proxy"
 
 hostgroups:
-  - name: base
+  - name: all
     description: Parent of all the groups
     children:
-      - name: buildsr
+      - name: foreman
         description: Builds and configures hosts
-      - name: physical
+      - name: awx
         description: Bare metal hosts
-        children:
-          - name: hypervisor
-            description: Host capable of virtualization
-          - name: storage
-            description: Storage device
-          - name: machine-learning
-            description: Automation, ML/AI
-      - name: virtual
-        description: Virtualized guest hosts
-        children:
-          - name: libvirt
-            description: KVM virtual machine
-            children:
-              - name: buildservices
-                descripiton: Build services host
-                children:
-                  - name: foreman
-                    description: Foreman Instance
-                  - name: awx
-                    description: AWX Instancee
-                description: Foreman Host Classifier and Build Service
-          - name: ovirt
-            description: oVirt virtual machine
 
 user_group_hierarchy: |
   {%- set ns = namespace(groups=[]) -%}
