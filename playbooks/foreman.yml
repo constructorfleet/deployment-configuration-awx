@@ -74,7 +74,7 @@
             users: '{{ usergroup.users | default(omit) }}'
             usergroups: '{{ usergroups.usergroups | default(omit) }}'
             state: '{{ usergroup.state | default("present") }}'
-          loop: '{{ organizations | map(attribute="usergroups", default=[]) | flatten }}'
+          loop: '{{ organizations | selectattr("usergroups", "defined") | list | map(attribute="usergroups") | flatten }}'
           loop_control:
             loop_var: usergroup
             label: '{{ usergroup.name }}'
@@ -88,7 +88,8 @@
           loop: |-
             {{
                 organizations
-                  | map(attribute="usergroups", default=[])
+                  | selectattr('usergroups' 'defined')
+                  | map(attribute="usergroups")
                   | flatten
                   | selectattr('ldap_cn', 'defined')
                   | list
