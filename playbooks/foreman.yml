@@ -88,7 +88,7 @@
           loop: |-
             {{
                 organizations
-                  | selectattr('usergroups' 'defined')
+                  | selectattr('usergroups', 'defined')
                   | map(attribute="usergroups")
                   | flatten
                   | selectattr('ldap_cn', 'defined')
