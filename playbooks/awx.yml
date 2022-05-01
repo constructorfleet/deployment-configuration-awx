@@ -100,17 +100,6 @@
             tower_username: "{{ awx.admin_user }}"
             tower_password: "{{ awx.admin_password }}"
 
-        - name: Create AWX Organizations
-          awx.awx.tower_organization:
-            name: "{{ item.name }}"
-            state: "{{ item.state | default('present') }}"
-            validate_certs: "{{ awx.validate_certs }}"
-            tower_host: "{{ awx_server_url }}"
-            tower_oauthtoken: '{{ tower_token }}'
-          loop: '{{ organizations | default([]) }}'
-          loop_control:
-            label: '{{ item.name }}'
-
         - name: Create Additional Tower Credential Types
           awx.awx.tower_credential_type:
             name: "{{ item.name }}"
@@ -139,6 +128,18 @@
           loop: "{{ awx_credentials | default([]) }}"
           loop_control:
             label: "{{ item.name }}"
+
+        - name: Create AWX Organizations
+          awx.awx.tower_organization:
+            name: "{{ item.name }}"
+            state: "{{ item.state | default('present') }}"
+            galaxy_credentials: Galaxy
+            validate_certs: "{{ awx.validate_certs }}"
+            tower_host: "{{ awx_server_url }}"
+            tower_oauthtoken: '{{ tower_token }}'
+          loop: '{{ organizations | default([]) }}'
+          loop_control:
+            label: '{{ item.name }}'
 
         - name: Create AWX Inventories
           awx.awx.tower_inventory:
