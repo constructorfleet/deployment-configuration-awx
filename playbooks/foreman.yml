@@ -8,6 +8,12 @@
   tasks:
     - name: Install Foreman
       block:
+        - name: Setup DNS BIND server
+          ansible.builtin.import_role:
+            name: isc_bind_server
+        - name: Setupd TFTP server
+          ansible.builtin.import_role:
+            name: tftp
         - name: Ensure Foreman user/group/directories/files exist
           ansible.builtin.include_tasks:
             file: tasks/foreman_system_user.yml
