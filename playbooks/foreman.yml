@@ -6,16 +6,6 @@
   hosts:
     - awx
   tasks:
-    - name: Prepare variables for use in services
-      ansible.builtin.include_tasks:
-        file: tasks/convert_variables_to_expected_format.yml
-      tags:
-        - always
-        - install-foreman
-        - configure-foreman
-        - installl-awx
-        - configure-awx
-
     - name: Install Foreman
       block:
         - name: Ensure Foreman user/group/directories/files exist
@@ -91,15 +81,16 @@
 
         - name: Configure Foreman External Usergroups
           theforeman.foreman.external_usergroup:
-            name: '{{ usergroup.name }}'
-            auth_source_ldap: '{{ usergroup.auth_source }}'
-            usergroup: '{{ usergroup.usergroup }}'
+            name: '{{ usergroup.ldap_cn }}'
+            auth_source_ldap: '{{ ldap_authentication.server }}'
+            usergroup: '{{ usergroup.name }}'
             state: '{{ usergroup.state | default("present") }}' # TODO
           loop: |-
             {{
                 organizations
                   | map(attribute="usergroups", default=[])
-                  | selectattr('ldap_sync', 'defined')
+                  | flatten
+                  | selectattr('ldap_cn', 'defined')
                   | list
                   | default([])
             }}
@@ -216,78 +207,6 @@
           loop_control:
             loop_var: hostgroup
             label: '{{ hostgroup.name }}'
-
-        - name: Configure Foreman LDAP Authentication Sources
-          ansible.builtin.include_role:
-            name: theforeman.foreman.auth_sources_ldap
-
-        - name: Configure Foreman Usergroups
-          theforeman.foreman.usergroup:
-            name: '{{ usergroup.name }}'
-            admin: '{{ usergroup.admin | default(False) }}'
-            roles: '{{ usergroup.roles | default(omit) }}'
-            users: '{{ usergroup.users | default(omit) }}'
-            usergroups: '{{ usergroups.usergroups | default(omit) }}'
-            state: '{{ usergroup.state | default("present") }}'
-          loop: '{{ foreman_usergroups.internal }}'
-          loop_control:
-            loop_var: usergroup
-            label: '{{ usergroup.name }}'
-
-        - name: Configure Foreman External Usergroups
-          theforeman.foreman.external_usergroup:
-            name: '{{ usergroup.name }}'
-            auth_source_ldap: '{{ usergroup.auth_source }}'
-            usergroup: '{{ usergroup.usergroup }}'
-            state: '{{ usergroup.state | default("present") }}'
-          loop: '{{ foreman_usergroups.external }}'
-          loop_control:
-            loop_var: usergroup
-            label: '{{ usergroup.name }}'
-
-        - name: Configure Foreman Domains
-          theforeman.foreman.domain:
-            name: '{{ domain.name }}'
-            description: '{{ domain.description | default(domain.name) }}'
-            parameters: '{{ domain.parameters | default(omit) }}'
-            dns_proxy: '{{ (domain.dns_proxy | default(omit)) if (foreman_proxy_dns | default(False)) else omit }}'
-            state: '{{ doman.state | default("present") }}'
-          loop: '{{ foreman_domains | default([]) }}'
-          loop_control:
-            loop_var: domain
-            label: '{{ domain.name }}'
-
-        - name: Configure Foreman Subnets
-          theforeman.foreman.subnet:
-            name: "{{ subnet.name }}"
-            description: "{{ subnet.description | default(subnet.name) }}"
-            network: "{{ subnet.network | default(subnet.name | split('/') | first) }}"
-            mask: "{{ subnet.mask | default(omit) }}"
-            cidr: "{{ subnet.cidr | default(subnet.name | default(omit)) }}"
-            gateway: "{{ subnet.gateway }}"
-            from_ip: "{{ subnet.from_ip | default(omit) }}"
-            to_ip: "{{ subnet.to_ip | default(omit) }}"
-            ipam: "{{ subnet.ipam | default(omit) }}"
-            dns_primary: "{{ subnet.dns_primary | default(default(subnet.name | split('/') | first)) | default(omit) }}"
-            dns_secondary: "{{ subnet.dns_secondary | default(secondary_dns_address) | default(omit) }}"
-            boot_mode: "{{ subnet.boot_mode | default('Static') }}"
-            domains: "{{ subnet.domains | default(omit) }}"
-            vlanid: "{{ subnet.vlan_id | default(omit) }}"
-            mtu: "{{ subnet.mtu | default(1500) }}"
-            parameters: "{{ subnet.parameters | default(omit) }}"
-            organizations: "{{ subnet.organizations | default(foreman_organization) }}"
-            locations: "{{ subnet.locations | default(foreman_location) }}"
-            discovery_proxy: "{{ (subnet.discovery_proxy | default(omit)) if (foreman_proxy_dhcp | default(False)) else omit }}"
-            dhcp_proxy: "{{ (subnet.dhcp_proxy | default(default_proxy) default(omit)) if (foreman_proxy_dhcp | default(False)) else omit }}"
-            tftp_proxy: "{{ (subnet.tftp_proxy | default(omit)) if (foreman_proxy_tftp | default(False)) else omit }}"
-            dns_proxy: "{{ (subnet.dns_proxy | default(omit)) if (foreman_proxy_tftp | default(False)) else omit }}"
-            httpboot_proxy: "{{ (subnet.httpboot_proxy | default(omit)) if (foreman_proxy_tftp | default(False)) else omit }}"
-            remote_execution_proxies: "{{ (subnet.remote_execution_proxies | default(omit)) if (foreman_proxy_remote_exec | default(False)) else omit }}"
-            state: '{{ subnet.state | default("present") }}'
-          loop: '{{ subnets | default([]) }}'
-          loop_control:
-            loop_var: subnet
-            label: '{{ subnet.name }}'
 
         - name: Configrue Foreman Installation Media
           theforeman.foreman.installation_medium:
